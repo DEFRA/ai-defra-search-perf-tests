@@ -1,4 +1,4 @@
-# cdp-perf-test-suite-template
+# ai-defra-search-perf-tests
 
 A JMeter based test runner for the CDP Platform.
 
