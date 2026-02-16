@@ -1,0 +1,20 @@
+{
+  "mappings": [
+    {
+      "name": "Bedrock Titan Embed Text V2 - Generate Embeddings",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/model/amazon\\.titan-embed-text-v2(%3A|:)0/invoke"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "x-amzn-bedrock-invocation-latency": "100",
+          "x-amzn-bedrock-input-token-count": "10"
+        },
+        "bodyFileName": "embed_response.json"
+      }
+    }
+  ]
+}

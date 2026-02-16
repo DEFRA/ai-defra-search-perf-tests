@@ -4,15 +4,16 @@ services:
     volumes:
       - ./reports:/opt/perftest/reports
     depends_on:
-      service:
+      ai-defra-search-frontend:
         condition: service_healthy
     env_file:
-      - 'compose/aws.env'
+      - 'compose/config/aws.env'
     environment:
       S3_ENDPOINT: 'http://localstack:4566'
       RESULTS_OUTPUT_S3_PATH: 's3://test-results'
       ENVIRONMENT: local
-      SERVICE_ENDPOINT: localhost
+      TEST_SCENARIO: ai-assistant
+      SERVICE_ENDPOINT: ai-defra-search-frontend
       SERVICE_PORT: 3000
       SERVICE_URL_SCHEME: http
     networks:
@@ -25,7 +26,8 @@ services:
       - '4510-4559:4510-4559' # external services port range
     restart: always
     env_file:
-      - 'compose/aws.env'
+      - 'compose/config/aws.env'
+      - compose/config/defaults.env
     environment:
       DEBUG: ${DEBUG:-1}
       LS_LOG: WARN # Localstack DEBUG Level
@@ -42,41 +44,181 @@ services:
     networks:
       - performance-tests
 
-  redis:
-    image: redis:7.2.3-alpine3.18
+  mongodb:
+    image: mongo:6
     ports:
-      - '6379:6379'
-    restart: always
-    networks:
-      - performance-tests
-
-  service:
-    # replace service-name with the name of your service being performace tested
-    image: defradigital/service-name:${SERVICE_VERSION:-latest}
-    ports:
-      - '3000:3000'
-    links:
-      - 'localstack:localstack'
-      - 'redis:redis'
-    depends_on:
-      localstack:
-        condition: service_healthy
-    env_file:
-      - 'compose/aws.env'
-    environment:
-      PORT: 3000
-      NODE_ENV: development
-      REDIS_HOST: redis
-      USE_SINGLE_INSTANCE_CACHE: true
+      - '27017:27017'
+    volumes:
+      - ./compose/scripts/mongodb:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ['CMD', 'curl', 'localhost:3000/health']
+      test: [ "CMD", "mongosh", "--eval", "db.hello().ok" ]
       interval: 5s
       start_period: 5s
       retries: 3
     networks:
       - performance-tests
 
+  redis:
+    image: redis:7.2.3-alpine3.18
+    ports:
+      - '6379:6379'
+    restart: always
+    healthcheck:
+      test: [ "CMD", "redis-cli", "PING" ]
+      interval: 5s
+      start_period: 2s
+      retries: 5
+    networks:
+      - performance-tests
+
+  bedrock-mock:
+    image: wiremock/wiremock:3.3.1
+    ports:
+      - "8089:8080"
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings
+      - ./wiremock/__files:/home/wiremock/__files
+    command:
+      - --global-response-templating
+      - --verbose
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://bedrock-mock:8080/__admin/health" ]
+      interval: 5s
+      start_period: 5s
+      retries: 3
+    networks:
+      - performance-tests
+
+  postgres:
+    build:
+      context: .
+      dockerfile: "compose/pgvector.Dockerfile"
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 10s
+      start_period: 5s
+      retries: 3
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./compose/scripts/postgres:/docker-entrypoint-initdb.d
+    env_file:
+      - "compose/config/postgres.env"
+    networks:
+      - performance-tests
+
+
+  ################################################################################
+  #
+  # Add the services you want to test below.
+  #
+  ################################################################################
+  ai-defra-search-data:
+    image: defradigital/ai-defra-search-data:${AI_DEFRA_SEARCH_DATA:-latest}
+    ports:
+      - 8085:8085
+      - 5678:5678
+    depends_on:
+      localstack:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    env_file:
+      - "compose/config/defaults.env"
+      - "compose/config/aws.env"
+      - "compose/config/postgres.env"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8085
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://ai-defra-search-data:8085/health"]
+      interval: 5s
+      start_period: 10s
+      retries: 3
+    networks:
+      - performance-tests
+
+  ai-defra-search-frontend:
+    image: defradigital/ai-defra-search-frontend:${AI_DEFRA_SEARCH_FRONTEND:-latest}
+    env_file:
+      - ./compose/config/defaults.env
+      - path: ./compose/config/.env.ai-defra-search-frontend
+        required: false
+    environment:
+      - PORT=${AI_DEFRA_SEARCH_FRONTEND_PORT:-3000}
+      - PROTOTYPE_PASSWORD=${PROTOTYPE_PASSWORD:-}
+      - API_BASE_URL=${API_BASE_URL:-http://ai-defra-search-agent:8086}
+      - AUTH_ENABLED=false
+      - MS_ENTRA_CLIENT_ID=${MS_ENTRA_CLIENT_ID:-local-dev-client-id}
+      - MS_ENTRA_CLIENT_SECRET=${MS_ENTRA_CLIENT_SECRET:-local-dev-tenant-secret}
+      - MS_ENTRA_REDIRECT_HOST=${MS_ENTRA_REDIRECT_HOST:-http://ai-defra-search-frontend:3000}
+      - MS_ENTRA_TENANT_ID=${MS_ENTRA_TENANT_ID:-local-dev-tenant-id}
+    depends_on:
+      ai-defra-search-agent:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    ports:
+      - 3000:3000
+    healthcheck:
+      test: ["CMD", "curl", "http://ai-defra-search-frontend:3000/health"]
+      interval: 3s
+      start_period: 2s
+      retries: 3
+    networks:
+      - performance-tests
+
+  ################################################################################
+  ai-defra-search-agent:
+    image: defradigital/ai-defra-search-agent:${AI_DEFRA_SEARCH_BACKEND:-latest}
+    env_file:
+      - ./compose/config/defaults.env
+      - path: ./compose/config/.env.ai-defra-search-agent
+        required: false
+    environment:
+      - AWS_EMF_ENVIRONMENT=${AWS_EMF_ENVIRONMENT:-local}
+      - AWS_EMF_AGENT_ENDPOINT=${AWS_EMF_AGENT_ENDPOINT:-tcp://127.0.01:25888}
+      - AWS_EMF_LOG_GROUP_NAME=${AWS_EMF_LOG_GROUP_NAME:-log-group-name}
+      - AWS_EMF_LOG_STREAM_NAME=${AWS_EMF_LOG_STREAM_NAME:-log-stream-name}
+      - AWS_EMF_NAMESPACE=${AWS_EMF_NAMESPACE:-namespace}
+      - AWS_EMF_SERVICE_NAME=${AWS_EMF_SERVICE_NAME:-service-name}
+      - AWS_EMF_SERVICE_TYPE=${AWS_EMF_SERVICE_TYPE:-python-backend-service}
+      - AWS_BEDROCK_DEFAULT_GENERATION_MODEL=${AWS_BEDROCK_DEFAULT_GENERATION_MODEL:-}
+      - AWS_BEDROCK_MAX_OUTPUT_TOKENS=${AWS_BEDROCK_MAX_OUTPUT_TOKENS:-4096}
+      - 'AWS_BEDROCK_AVAILABLE_GENERATION_MODELS=${AWS_BEDROCK_AVAILABLE_GENERATION_MODELS:-[{"modelId":"anthropic.claude-3-7-sonnet-20250219-v1:0","name":"Claude Sonnet 3.7","description":"A powerful conversational AI model suitable for a wide range of tasks.", "bedrockModelId": "anthropic.claude-3-7-sonnet-20250219-v1:0" }, { "modelId": "anthropic.claude-3-haiku-20240307-v1:0","name": "Claude 3 Haiku","description": "An advanced conversational AI model with enhanced understanding and generation capabilities.","bedrockModelId": "anthropic.claude-3-haiku-20240307-v1:0" } ]}'
+      - KNOWLEDGE_BASE_URL=${KNOWLEDGE_BASE_URL:-http://ai-defra-search-data:8085}
+      - KNOWLEDGE_GROUP_ID=${KNOWLEDGE_GROUP_ID:-kg_34vf0wr3e06l}
+      - KNOWLEDGE_SIMILARITY_THRESHOLD=${KNOWLEDGE_SIMILARITY_THRESHOLD:-0.5}
+      - LOCALSTACK_URL=${LOCALSTACK_URL:-http://localstack:4566}
+      - CHAT_QUEUE_URL=${CHAT_QUEUE_URL:-http://sqs.eu-west-2.localstack:4566/000000000000/chat-job-queue}
+      - HOST=${HOST:-0.0.0.0}
+      - PORT=${PORT:-8086}
+      - AWS_ENDPOINT_URL_BEDROCK_RUNTIME=${AWS_ENDPOINT_URL_BEDROCK_RUNTIME:-http://bedrock-mock:8080}
+      - AWS_BEARER_TOKEN_BEDROCK=${AWS_BEARER_TOKEN_BEDROCK:-}
+    ports:
+      - 8086:8086
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      bedrock-mock:
+        condition: service_healthy
+      ai-defra-search-data:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "http://ai-defra-search-agent:8086/health"]
+      interval: 3s
+      start_period: 2s
+      retries: 3
+    networks:
+      - performance-tests
+
+volumes:
+  mongodb-data:
+  postgres-data:
+
 networks:
   performance-tests:
     driver: bridge
-
