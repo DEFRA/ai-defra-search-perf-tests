@@ -1,0 +1,23 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/model/anthropic\\..*/converse",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$.messages[*].content[*].text",
+            "contains": "What is UCD?"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/x-amz-json-1.1"
+        },
+        "bodyFileName": "what_is_ucd_response.json"
+      }
+    }
+  ]
+}
