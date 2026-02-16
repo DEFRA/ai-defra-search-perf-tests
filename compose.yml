@@ -102,22 +102,9 @@ services:
       retries: 3
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./compose/scripts/postgres:/docker-entrypoint-initdb.d
     env_file:
       - "compose/config/postgres.env"
-    networks:
-      - performance-tests
-
-  migrator:
-    build:
-      context: ./migrator
-    image: migrator
-    depends_on:
-      postgres:
-        condition: service_healthy
-    env_file:
-      - "compose/config/postgres.env"
-    volumes:
-      - ./compose/changelog:/liquibase/changelog
     networks:
       - performance-tests
 
@@ -128,8 +115,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      migrator:
-        condition: service_completed_successfully
     env_file:
       - "compose/config/postgres.env"
     networks:
@@ -160,10 +145,10 @@ services:
         condition: service_healthy
       mongodb-seeder:
         condition: service_completed_successfully
-      postgres:
-        condition: service_healthy
       seeder:
         condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
     env_file:
       - "compose/config/defaults.env"
       - "compose/config/aws.env"
