@@ -3,7 +3,26 @@
     {
       "request": {
         "method": "POST",
-        "urlPathPattern": "/model/anthropic\\..*/converse",
+        "urlPathPattern": "/model/anthropic\\.claude-.*/converse",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$.messages[*].content[*].text",
+            "contains": "Is it good practice to adopt in software development?"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/x-amz-json-1.1"
+        },
+        "bodyFileName": "is_ucd_good_practice_response.json"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/model/anthropic\\.claude-.*/converse",
         "bodyPatterns": [
           {
             "matchesJsonPath": "$.messages[*].content[*].text",
