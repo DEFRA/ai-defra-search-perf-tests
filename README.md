@@ -100,6 +100,67 @@ docker run -e S3_ENDPOINT='http://host.docker.internal:4566' -e RESULTS_OUTPUT_S
 
 ---
 
+## Running JMeter Tests Locally
+
+### Run a test scenario with HTML report generation
+
+To run JMeter tests locally (outside Docker) and generate HTML reports:
+
+```bash
+# Run test with live HTML dashboard generation
+jmeter -n -t scenarios/ai-assistant.jmx \
+  -l reports/test-results.csv \
+  -e -o reports \
+  -Jenv=local \
+  -JHTTP_PROTOCOL=http \
+  -JAI_DEFRA_SEARCH_FRONTEND_HOST=ai-defra-search-frontend \
+  -JAI_DEFRA_SEARCH_FRONTEND_PORT=3000
+```
+
+This will:
+- Run the test in non-GUI mode (`-n`)
+- Use the specified test plan (`-t`)
+- Write results to CSV (`-l`)
+- Generate HTML dashboard (`-e -o reports`)
+- Set environment variables for local testing
+
+### Generate HTML report from existing CSV file
+
+If you already have a CSV results file and want to generate the HTML dashboard:
+
+```bash
+# Generate HTML report from existing CSV
+jmeter -g 20260216-164226-ai-assistant-report.csv -o reports
+```
+
+This creates the complete HTML dashboard in the `./reports` directory, including:
+- `index.html` - Main dashboard with statistics, charts, and error details
+- `statistics.json` - Raw statistics data
+- Various chart pages and assets
+
+### Important Notes
+
+- The `-e -o` flags will **overwrite** the existing reports directory (use `-f` to force if needed)
+- The CSV file **must be in JMeter CSV format** with all required fields
+- The JMX file's `ResultCollector` has been configured to:
+  - Not create its own CSV file (empty filename)
+  - Capture both successes and failures (`success_only_logging=false`)
+  - This ensures the command-line CSV contains complete data for report generation
+
+### Troubleshooting Report Generation
+
+**HTML report not generated:**
+- Check that the CSV file exists and has data
+- Verify the CSV format is correct (should have headers like: timeStamp, elapsed, label, responseCode, success, etc.)
+- Ensure the reports directory doesn't exist or use `-f` flag to force overwrite
+
+**Report shows 100% failures when CSV shows successes:**
+- This means the HTML report was generated from a different CSV file
+- Delete the reports directory and regenerate from the correct CSV file
+- Ensure you're using the command-line `-l` flag, not relying on the JMX file's ResultCollector filename
+
+---
+
 ## RAG Stack Testing
 
 ### Quick Start
@@ -168,37 +229,6 @@ curl -X POST http://localhost:8086/chat \
 # Access frontend
 open http://localhost:3000
 ```
-
-### Architecture
-
-```
-User Query
-    ↓
-Frontend (3000) → Agent (8086) → Data Service (8085)
-                      ↓                   ↓
-                  Bedrock Mock       PostgreSQL (pgvector)
-                  (8089)             MongoDB (metadata)
-                      ↓
-                  - Embeddings (Titan)
-                  - Chat (Claude)
-```
-
-### Service Endpoints
-
-- **Frontend**: http://localhost:3000
-- **Agent**: http://localhost:8086
-  - `/health` - Health check
-  - `/chat` - Chat endpoint
-- **Data Service**: http://localhost:8085
-  - `/health` - Health check
-  - `/snapshots/query` - Knowledge base query
-- **Bedrock Mock**: http://localhost:8089
-  - Embedding model: `amazon.titan-embed-text-v2:0`
-  - Chat models: Claude 3.7 Sonnet, Claude 3 Haiku
-- **PostgreSQL**: localhost:5432
-  - Database: `ai_defra_search_data`
-  - User: `postgres` / Password: `ppp`
-- **LocalStack**: http://localhost:4566
 
 ### Troubleshooting
 
