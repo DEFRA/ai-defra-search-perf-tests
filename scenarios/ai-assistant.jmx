@@ -285,45 +285,25 @@ log.info("=== END DEBUG ===")
         <boolProp name="ResultCollector.success_only_logging">false</boolProp>
       </ResultCollector>
       <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Environment Defined Variables" enabled="true">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Host from entrypoint -Jdomain/-Jport/-Jprotocol" enabled="true">
         <collectionProp name="Arguments.arguments">
           <elementProp name="HTTP_PROTOCOL" elementType="Argument">
             <stringProp name="Argument.name">HTTP_PROTOCOL</stringProp>
-            <stringProp name="Argument.value">https</stringProp>
+            <stringProp name="Argument.value">${__P(protocol,https)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="AI_DEFRA_SEARCH_FRONTEND_HOST" elementType="Argument">
             <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_HOST</stringProp>
-            <stringProp name="Argument.value">ai-defra-search-frontend.${__P(env)}.cdp-int.defra.cloud</stringProp>
+            <stringProp name="Argument.value">${__P(domain,ai-defra-search-frontend.${__P(env,local)}.cdp-int.defra.cloud)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="AI_DEFRA_SEARCH_FRONTEND_PORT" elementType="Argument">
             <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_PORT</stringProp>
-            <stringProp name="Argument.value">443</stringProp>
+            <stringProp name="Argument.value">${__P(port,443)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
-        <stringProp name="TestPlan.comments">To be enabled as default and disabled when testing locally</stringProp>
-      </Arguments>
-      <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-        <collectionProp name="Arguments.arguments">
-          <elementProp name="HTTP_PROTOCOL" elementType="Argument">
-            <stringProp name="Argument.name">HTTP_PROTOCOL</stringProp>
-            <stringProp name="Argument.value">http</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_HOST" elementType="Argument">
-            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_HOST</stringProp>
-            <stringProp name="Argument.value">localhost</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_PORT" elementType="Argument">
-            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_PORT</stringProp>
-            <stringProp name="Argument.value">3000</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-        </collectionProp>
+        <stringProp name="TestPlan.comments">Uses -Jdomain, -Jport, -Jprotocol from entrypoint (SERVICE_ENDPOINT, SERVICE_PORT, SERVICE_URL_SCHEME)</stringProp>
       </Arguments>
       <hashTree/>
     </hashTree>
