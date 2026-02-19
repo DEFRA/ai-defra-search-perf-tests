@@ -27,7 +27,7 @@ services:
     restart: always
     env_file:
       - 'compose/config/aws.env'
-      - compose/config/defaults.env
+      - 'compose/config/defaults.env'
     environment:
       DEBUG: ${DEBUG:-1}
       LS_LOG: WARN # Localstack DEBUG Level
@@ -72,12 +72,9 @@ services:
       - performance-tests
 
   bedrock-mock:
-    image: wiremock/wiremock:3.3.1
+    image: ai-defra-search-aws-bedrock-stub:latest
     ports:
       - "8089:8080"
-    volumes:
-      - ./wiremock/mappings:/home/wiremock/mappings
-      - ./wiremock/__files:/home/wiremock/__files
     command:
       - --global-response-templating
       - --verbose
@@ -133,6 +130,7 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 8085
+      AWS_ENDPOINT_URL_BEDROCK_RUNTIME: ${AWS_ENDPOINT_URL_BEDROCK_RUNTIME:-http://bedrock-mock:8080}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://ai-defra-search-data:8085/health"]
       interval: 5s
@@ -148,14 +146,14 @@ services:
       - path: ./compose/config/.env.ai-defra-search-frontend
         required: false
     environment:
-      - PORT=${AI_DEFRA_SEARCH_FRONTEND_PORT:-3000}
-      - PROTOTYPE_PASSWORD=${PROTOTYPE_PASSWORD:-}
-      - API_BASE_URL=${API_BASE_URL:-http://ai-defra-search-agent:8086}
-      - AUTH_ENABLED=false
-      - MS_ENTRA_CLIENT_ID=${MS_ENTRA_CLIENT_ID:-local-dev-client-id}
-      - MS_ENTRA_CLIENT_SECRET=${MS_ENTRA_CLIENT_SECRET:-local-dev-tenant-secret}
-      - MS_ENTRA_REDIRECT_HOST=${MS_ENTRA_REDIRECT_HOST:-http://ai-defra-search-frontend:3000}
-      - MS_ENTRA_TENANT_ID=${MS_ENTRA_TENANT_ID:-local-dev-tenant-id}
+      PORT: ${AI_DEFRA_SEARCH_FRONTEND_PORT:-3000}
+      PROTOTYPE_PASSWORD: ${PROTOTYPE_PASSWORD:-}
+      API_BASE_URL: ${API_BASE_URL:-http://ai-defra-search-agent:8086}
+      AUTH_ENABLED: false
+      MS_ENTRA_CLIENT_ID: ${MS_ENTRA_CLIENT_ID:-local-dev-client-id}
+      MS_ENTRA_CLIENT_SECRET: ${MS_ENTRA_CLIENT_SECRET:-local-dev-tenant-secret}
+      MS_ENTRA_REDIRECT_HOST: ${MS_ENTRA_REDIRECT_HOST:-http://ai-defra-search-frontend:3000}
+      MS_ENTRA_TENANT_ID: ${MS_ENTRA_TENANT_ID:-local-dev-tenant-id}
     depends_on:
       ai-defra-search-agent:
         condition: service_started
@@ -179,25 +177,24 @@ services:
       - path: ./compose/config/.env.ai-defra-search-agent
         required: false
     environment:
-      - AWS_EMF_ENVIRONMENT=${AWS_EMF_ENVIRONMENT:-local}
-      - AWS_EMF_AGENT_ENDPOINT=${AWS_EMF_AGENT_ENDPOINT:-tcp://127.0.01:25888}
-      - AWS_EMF_LOG_GROUP_NAME=${AWS_EMF_LOG_GROUP_NAME:-log-group-name}
-      - AWS_EMF_LOG_STREAM_NAME=${AWS_EMF_LOG_STREAM_NAME:-log-stream-name}
-      - AWS_EMF_NAMESPACE=${AWS_EMF_NAMESPACE:-namespace}
-      - AWS_EMF_SERVICE_NAME=${AWS_EMF_SERVICE_NAME:-service-name}
-      - AWS_EMF_SERVICE_TYPE=${AWS_EMF_SERVICE_TYPE:-python-backend-service}
-      - AWS_BEDROCK_DEFAULT_GENERATION_MODEL=${AWS_BEDROCK_DEFAULT_GENERATION_MODEL:-}
-      - AWS_BEDROCK_MAX_OUTPUT_TOKENS=${AWS_BEDROCK_MAX_OUTPUT_TOKENS:-4096}
-      - 'AWS_BEDROCK_AVAILABLE_GENERATION_MODELS=${AWS_BEDROCK_AVAILABLE_GENERATION_MODELS:-[{"modelId":"anthropic.claude-3-7-sonnet-20250219-v1:0","name":"Claude Sonnet 3.7","description":"A powerful conversational AI model suitable for a wide range of tasks.", "bedrockModelId": "anthropic.claude-3-7-sonnet-20250219-v1:0" }, { "modelId": "anthropic.claude-3-haiku-20240307-v1:0","name": "Claude 3 Haiku","description": "An advanced conversational AI model with enhanced understanding and generation capabilities.","bedrockModelId": "anthropic.claude-3-haiku-20240307-v1:0" } ]}'
-      - KNOWLEDGE_BASE_URL=${KNOWLEDGE_BASE_URL:-http://ai-defra-search-data:8085}
-      - KNOWLEDGE_GROUP_ID=${KNOWLEDGE_GROUP_ID:-kg_34vf0wr3e06l}
-      - KNOWLEDGE_SIMILARITY_THRESHOLD=${KNOWLEDGE_SIMILARITY_THRESHOLD:-0.5}
-      - LOCALSTACK_URL=${LOCALSTACK_URL:-http://localstack:4566}
-      - CHAT_QUEUE_URL=${CHAT_QUEUE_URL:-http://sqs.eu-west-2.localstack:4566/000000000000/chat-job-queue}
-      - HOST=${HOST:-0.0.0.0}
-      - PORT=${PORT:-8086}
-      - AWS_ENDPOINT_URL_BEDROCK_RUNTIME=${AWS_ENDPOINT_URL_BEDROCK_RUNTIME:-http://bedrock-mock:8080}
-      - AWS_BEARER_TOKEN_BEDROCK=${AWS_BEARER_TOKEN_BEDROCK:-}
+      AWS_EMF_ENVIRONMENT: ${AWS_EMF_ENVIRONMENT:-local}
+      AWS_EMF_AGENT_ENDPOINT: ${AWS_EMF_AGENT_ENDPOINT:-tcp://127.0.01:25888}
+      AWS_EMF_LOG_GROUP_NAME: ${AWS_EMF_LOG_GROUP_NAME:-log-group-name}
+      AWS_EMF_LOG_STREAM_NAME: ${AWS_EMF_LOG_STREAM_NAME:-log-stream-name}
+      AWS_EMF_NAMESPACE: ${AWS_EMF_NAMESPACE:-namespace}
+      AWS_EMF_SERVICE_NAME: ${AWS_EMF_SERVICE_NAME:-service-name}
+      AWS_EMF_SERVICE_TYPE: ${AWS_EMF_SERVICE_TYPE:-python-backend-service}
+      AWS_BEDROCK_DEFAULT_GENERATION_MODEL: ${AWS_BEDROCK_DEFAULT_GENERATION_MODEL:-}
+      AWS_BEDROCK_MAX_OUTPUT_TOKENS: ${AWS_BEDROCK_MAX_OUTPUT_TOKENS:-4096}
+      KNOWLEDGE_BASE_URL: ${KNOWLEDGE_BASE_URL:-http://ai-defra-search-data:8085}
+      KNOWLEDGE_GROUP_ID: ${KNOWLEDGE_GROUP_ID:-kg_34vf0wr3e06l}
+      KNOWLEDGE_SIMILARITY_THRESHOLD: ${KNOWLEDGE_SIMILARITY_THRESHOLD:-0.5}
+      LOCALSTACK_URL: ${LOCALSTACK_URL:-http://localstack:4566}
+      CHAT_QUEUE_URL: ${CHAT_QUEUE_URL:-http://sqs.eu-west-2.localstack:4566/000000000000/chat-job-queue}
+      HOST: ${HOST:-0.0.0.0}
+      PORT: ${PORT:-8086}
+      AWS_ENDPOINT_URL_BEDROCK_RUNTIME: ${AWS_ENDPOINT_URL_BEDROCK_RUNTIME:-http://bedrock-mock:8080}
+      AWS_BEARER_TOKEN_BEDROCK: ${AWS_BEARER_TOKEN_BEDROCK:-}
     ports:
       - 8086:8086
     depends_on:

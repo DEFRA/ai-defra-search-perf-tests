@@ -46,6 +46,73 @@ Once all services are healthy, your performance tests will automatically start.
 
 ---
 
+### Parameterizing Tests in Docker
+
+You can override test parameters using environment variables when running with Docker Compose:
+
+```bash
+# Run with custom test parameters
+THREADS=50 RAMP_TIME=30 DURATION=300 docker compose up
+
+# Or use an environment file
+docker compose --env-file my-test-config.env up
+```
+
+**Available Environment Variables:**
+
+| Variable | Description | Default | Unit |
+|----------|-------------|---------|------|
+| `THREADS` | Number of concurrent users | 20 | users |
+| `RAMP_TIME` | Time to ramp up all users | 10 | seconds |
+| `DURATION` | Total test duration | 60 | seconds |
+| `HTTP_TIMEOUT` | HTTP request timeout | 30000 | milliseconds |
+| `MAX_RESPONSE_TIME` | Maximum acceptable response time | 20000 | milliseconds |
+| `WAIT_AFTER_PAGE_LOAD` | Pause after loading the chat page | 5000 | milliseconds |
+| `WAIT_AFTER_QUESTION` | Pause after submitting each question | 10000 | milliseconds |
+
+**Example: Create a test configuration file `performance-test.env`:**
+
+```bash
+THREADS=100
+RAMP_TIME=60
+DURATION=600
+HTTP_TIMEOUT=60000
+MAX_RESPONSE_TIME=30000
+WAIT_AFTER_PAGE_LOAD=3000
+WAIT_AFTER_QUESTION=5000
+```
+
+Then run:
+
+```bash
+docker compose --env-file performance-test.env up
+```
+
+### Pre-configured Test Scenario
+
+The repository includes a ready-to-use performance test configuration file:
+
+- **`test-configs/performance-test.env`**: High load scenario (100 users, 10 minutes)
+
+Use it with Docker Compose:
+
+```bash
+docker compose --env-file test-configs/performance-test.env up
+```
+
+Or with JMeter directly:
+
+```bash
+# Load environment variables and run JMeter
+export $(cat test-configs/performance-test.env | xargs)
+jmeter -n -t scenarios/ai-assistant.jmx -l reports/performance-test.csv -e -o reports \
+  -Jthreads=$THREADS -JrampTime=$RAMP_TIME -Jduration=$DURATION \
+  -JhttpTimeout=$HTTP_TIMEOUT -JmaxResponseTime=$MAX_RESPONSE_TIME \
+  -JwaitAfterPageLoad=$WAIT_AFTER_PAGE_LOAD -JwaitAfterQuestion=$WAIT_AFTER_QUESTION
+```
+
+---
+
 ### Replace `service-name` in Compose File
 
 In the `docker-compose.yml`, make sure to replace:
@@ -107,7 +174,7 @@ docker run -e S3_ENDPOINT='http://host.docker.internal:4566' -e RESULTS_OUTPUT_S
 To run JMeter tests locally (outside Docker) and generate HTML reports:
 
 ```bash
-# Run test with live HTML dashboard generation
+# Run test with live HTML dashboard generation (default parameters)
 jmeter -n -t scenarios/ai-assistant.jmx \
   -l reports/test-results.csv \
   -e -o reports \
@@ -117,7 +184,57 @@ jmeter -n -t scenarios/ai-assistant.jmx \
   -JAI_DEFRA_SEARCH_FRONTEND_PORT=3000
 ```
 
-This will:
+### Parameterizing Test Execution
+
+You can customize test parameters via `-J` command-line properties:
+
+```bash
+# Run test with custom parameters
+jmeter -n -t scenarios/ai-assistant.jmx \
+  -l reports/test-results.csv \
+  -e -o reports \
+  -Jenv=local \
+  -JHTTP_PROTOCOL=http \
+  -JAI_DEFRA_SEARCH_FRONTEND_HOST=ai-defra-search-frontend \
+  -JAI_DEFRA_SEARCH_FRONTEND_PORT=3000 \
+  -Jthreads=20 \
+  -JrampTime=30 \
+  -Jduration=300 \
+  -JhttpTimeout=60000 \
+  -JmaxResponseTime=30000 \
+  -JwaitAfterPageLoad=3000 \
+  -JwaitAfterQuestion=5000
+```
+
+**Available Test Parameters:**
+
+| Parameter | Description | Default | Unit |
+|-----------|-------------|---------|------|
+| `threads` | Number of concurrent users | 20 | users |
+| `rampTime` | Time to ramp up all users | 10 | seconds |
+| `duration` | Total test duration | 60 | seconds |
+| `httpTimeout` | HTTP request timeout | 30000 | milliseconds |
+| `maxResponseTime` | Maximum acceptable response time (assertion) | 20000 | milliseconds |
+| `waitAfterPageLoad` | Pause after loading the chat page | 5000 | milliseconds |
+| `waitAfterQuestion` | Pause after submitting each question | 10000 | milliseconds |
+
+**Example Scenarios:**
+
+```bash
+# performance test: 100 users, 1 minute ramp-up, 10 minutes duration
+jmeter -n -t scenarios/ai-assistant.jmx -l reports/performance-test.csv -e -o reports \
+  -Jthreads=100 -JrampTime=60 -Jduration=600
+
+# Quick smoke test: 5 users, fast execution
+jmeter -n -t scenarios/ai-assistant.jmx -l reports/smoke-test.csv -e -o reports \
+  -Jthreads=5 -JrampTime=5 -Jduration=30 -JwaitAfterPageLoad=1000 -JwaitAfterQuestion=2000
+
+# Endurance test: 20 users, 1 hour duration
+jmeter -n -t scenarios/ai-assistant.jmx -l reports/endurance-test.csv -e -o reports \
+  -Jthreads=20 -JrampTime=60 -Jduration=3600
+```
+
+This will:\
 - Run the test in non-GUI mode (`-n`)
 - Use the specified test plan (`-t`)
 - Write results to CSV (`-l`)

@@ -64,50 +64,13 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 - Load Chat Page" enabled="true">
-          <intProp name="HTTPSampler.response_timeout">30000</intProp>
-          <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
-          <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
-          <stringProp name="HTTPSampler.path">/start</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Page Loaded OK" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="49586">200</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-            <intProp name="Assertion.test_type">16</intProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-          </ResponseAssertion>
-          <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Conversation Container Exists" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="740154499">conversation</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <intProp name="Assertion.test_type">2</intProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-          </ResponseAssertion>
-          <hashTree/>
-          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait 5s After Page Load" enabled="true">
-            <stringProp name="ConstantTimer.delay">5000</stringProp>
-          </ConstantTimer>
-          <hashTree/>
-        </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Submit Question 1 - What is UCD?" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 - Submit Question 1 - What is UCD?" enabled="true">
           <intProp name="HTTPSampler.response_timeout">30000</intProp>
           <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
           <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
           <stringProp name="HTTPSampler.path">/start</stringProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-          <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
@@ -151,9 +114,9 @@
           </ResponseAssertion>
           <hashTree/>
           <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract Conversation ID" enabled="true">
-            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.useHeaders">URL</stringProp>
             <stringProp name="RegexExtractor.refname">conversationId</stringProp>
-            <stringProp name="RegexExtractor.regex">(?i)([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})</stringProp>
+            <stringProp name="RegexExtractor.regex">/start/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})</stringProp>
             <stringProp name="RegexExtractor.template">$1$</stringProp>
             <stringProp name="RegexExtractor.default">CONVERSATION_ID_NOT_FOUND</stringProp>
             <stringProp name="RegexExtractor.match_number">1</stringProp>
@@ -179,7 +142,7 @@ log.info("=== END DEBUG ===")
           </ConstantTimer>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="03 - Submit Question 2 - Is it good practice?" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Submit Question 2 - Is it good practice?" enabled="true">
           <intProp name="HTTPSampler.response_timeout">30000</intProp>
           <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
           <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
@@ -263,7 +226,7 @@ log.info("=== END DEBUG ===")
             <dataType>true</dataType>
             <encoding>false</encoding>
             <assertions>true</assertions>
-            <subresults>true</subresults>
+            <subresults>false</subresults>
             <responseData>true</responseData>
             <samplerData>true</samplerData>
             <xml>false</xml>
