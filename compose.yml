@@ -16,6 +16,13 @@ services:
       SERVICE_ENDPOINT: ai-defra-search-frontend
       SERVICE_PORT: 3000
       SERVICE_URL_SCHEME: http
+      THREADS: 5
+      RAMP_TIME: 10
+      DURATION: 120
+      HTTP_TIMEOUT: 60000
+      MAX_RESPONSE_TIME: 30000
+      WAIT_AFTER_PAGE_LOAD: 3000
+      WAIT_AFTER_QUESTION: 5000
     networks:
       - performance-tests
 

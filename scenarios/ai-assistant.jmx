@@ -52,11 +52,11 @@
       </CookieManager>
       <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="AI Assistant Users - 20 Concurrent">
-        <intProp name="ThreadGroup.num_threads">20</intProp>
-        <intProp name="ThreadGroup.ramp_time">10</intProp>
-        <longProp name="ThreadGroup.duration">60</longProp>
+        <intProp name="ThreadGroup.num_threads">4</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <longProp name="ThreadGroup.duration">0</longProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController">
           <stringProp name="LoopController.loops">1</stringProp>
@@ -93,22 +93,12 @@
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response 200 OK" enabled="true">
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response 200 OK After Redirect" enabled="true">
             <collectionProp name="Asserion.test_strings">
               <stringProp name="49586">200</stringProp>
             </collectionProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
             <intProp name="Assertion.test_type">16</intProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-          </ResponseAssertion>
-          <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Body Not Empty" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="1469">.+</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <intProp name="Assertion.test_type">2</intProp>
             <stringProp name="Assertion.custom_message"></stringProp>
             <boolProp name="Assertion.assume_success">false</boolProp>
           </ResponseAssertion>
@@ -127,7 +117,7 @@
             <stringProp name="script">
 log.info("=== QUESTION 1 RESPONSE DEBUG ===")
 log.info("Response Code: " + prev.getResponseCode())
-log.info("Response Body (first 2000 chars): " + prev.getResponseDataAsString().take(2000))
+log.info("Response Body (first 5000 chars): " + prev.getResponseDataAsString().take(5000))
 log.info("Extracted conversationId: " + vars.get("conversationId"))
 log.info("=== END DEBUG ===")
             </stringProp>
@@ -137,9 +127,58 @@ log.info("=== END DEBUG ===")
             <stringProp name="DurationAssertion.duration">20000</stringProp>
           </DurationAssertion>
           <hashTree/>
-          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait 10s After Question Submit" enabled="true">
-            <stringProp name="ConstantTimer.delay">10000</stringProp>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01b - Poll Answer 1 - Get UCD Response" enabled="true">
+          <intProp name="HTTPSampler.response_timeout">30000</intProp>
+          <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
+          <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait 4s Before This Request" enabled="true">
+            <stringProp name="ConstantTimer.delay">20000</stringProp>
           </ConstantTimer>
+          <hashTree/>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response 200 OK" enabled="true">
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <intProp name="Assertion.test_type">16</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Contains Expected Answer" enabled="true">
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="1990813707">really cool thing called User Centred Design</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+            <intProp name="Assertion.test_type">2</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Answer 1" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">
+log.info("=== ANSWER 1 RESPONSE DEBUG ===")
+log.info("Response Code: " + prev.getResponseCode())
+log.info("Response Body (first 5000 chars): " + prev.getResponseDataAsString().take(5000))
+log.info("=== END DEBUG ===")
+            </stringProp>
+          </JSR223PostProcessor>
+          <hashTree/>
+          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max 20 Seconds" enabled="true">
+            <stringProp name="DurationAssertion.duration">20000</stringProp>
+          </DurationAssertion>
           <hashTree/>
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Submit Question 2 - Is it good practice?" enabled="true">
@@ -147,7 +186,8 @@ log.info("=== END DEBUG ===")
           <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
           <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
           <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
-          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
@@ -161,6 +201,10 @@ log.info("=== END DEBUG ===")
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
+          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait 2s Before This Request" enabled="true">
+            <stringProp name="ConstantTimer.delay">2000</stringProp>
+          </ConstantTimer>
+          <hashTree/>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="JSON Content-Type" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp name="" elementType="Header">
@@ -169,6 +213,50 @@ log.info("=== END DEBUG ===")
               </elementProp>
             </collectionProp>
           </HeaderManager>
+          <hashTree/>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response 200 OK After Redirect" enabled="true">
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <intProp name="Assertion.test_type">16</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Response Body" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">
+log.info("=== QUESTION 2 RESPONSE DEBUG ===")
+log.info("Response Code: " + prev.getResponseCode())
+log.info("Response Body (first 5000 chars): " + prev.getResponseDataAsString().take(5000))
+log.info("conversationId: " + vars.get("conversationId"))
+log.info("=== END DEBUG ===")
+            </stringProp>
+          </JSR223PostProcessor>
+          <hashTree/>
+          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max 20 Seconds" enabled="true">
+            <stringProp name="DurationAssertion.duration">20000</stringProp>
+          </DurationAssertion>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02b - Poll Answer 2 - Get Good Practice Response" enabled="true">
+          <intProp name="HTTPSampler.response_timeout">30000</intProp>
+          <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
+          <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait 4s Before This Request" enabled="true">
+            <stringProp name="ConstantTimer.delay">20000</stringProp>
+          </ConstantTimer>
           <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response 200 OK" enabled="true">
             <collectionProp name="Asserion.test_strings">
@@ -180,9 +268,9 @@ log.info("=== END DEBUG ===")
             <boolProp name="Assertion.assume_success">false</boolProp>
           </ResponseAssertion>
           <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Body Not Empty" enabled="true">
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Contains Expected Answer" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="1469">.+</stringProp>
+              <stringProp name="-596188330">produce much better software geared towards users needs</stringProp>
             </collectionProp>
             <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
             <intProp name="Assertion.test_type">2</intProp>
@@ -190,23 +278,19 @@ log.info("=== END DEBUG ===")
             <boolProp name="Assertion.assume_success">false</boolProp>
           </ResponseAssertion>
           <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Contains Data" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="1469">.+</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <intProp name="Assertion.test_type">2</intProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-          </ResponseAssertion>
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Answer 2" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">
+log.info("=== ANSWER 2 RESPONSE DEBUG ===")
+log.info("Response Code: " + prev.getResponseCode())
+log.info("Response Body (first 5000 chars): " + prev.getResponseDataAsString().take(5000))
+log.info("=== END DEBUG ===")
+            </stringProp>
+          </JSR223PostProcessor>
           <hashTree/>
           <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max 20 Seconds" enabled="true">
             <stringProp name="DurationAssertion.duration">20000</stringProp>
           </DurationAssertion>
-          <hashTree/>
-          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait 10s After Question Submit" enabled="true">
-            <stringProp name="ConstantTimer.delay">10000</stringProp>
-          </ConstantTimer>
           <hashTree/>
         </hashTree>
       </hashTree>
