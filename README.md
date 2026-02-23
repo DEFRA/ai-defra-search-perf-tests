@@ -6,11 +6,9 @@ Performance tests for the AI Defra Search application using JMeter.
 
 - [Local Architecture](#local-architecture)
 - [Running Tests Locally with JMeter](#running-tests-locally-with-jmeter)
-- [Running Tests Locally in Docker](#running-tests-locally-in-docker)
 - [Running Tests with run-tests-local.sh](#running-tests-with-run-tests-localsh)
 - [Licence](#licence)
 
----
 
 ## Local Architecture
 
@@ -35,7 +33,6 @@ The `compose.yml` file starts the following services:
 | **ai-defra-search-frontend** | Web UI (under test) | 3000 | ai-defra-search-agent, redis |
 | **development** | JMeter test runner | - | ai-defra-search-frontend |
 
----
 
 ## Running Tests Locally with JMeter
 
@@ -44,7 +41,7 @@ Run JMeter directly on your machine (requires local JMeter installation).
 ### Prerequisites
 
 - JMeter installed
-- Services running: `docker compose up -d`
+- Services running: `ddocker compose up --wait -d`
 
 ### Basic Command
 
@@ -89,32 +86,6 @@ jmeter -n -t scenarios/ai-assistant.jmx \
   -Jduration=600
 ```
 
----
-
-## Running Tests Locally in Docker
-
-Run tests inside Docker (no local JMeter required).
-
-### Start Tests
-
-```bash
-docker compose up --build
-```
-
-The `development` service runs JMeter and uploads results to LocalStack S3.
-
-### Override Parameters
-
-**Option 1: Command-line**
-
-```bash
-THREADS=50 DURATION=300 docker compose up
-```
-
-**Option 2: Edit compose.yml**
-
-Modify the `environment` section of the `development` service.
-
 ## Running Tests with run-tests-local.sh
 
 Automated script that starts Docker services and runs JMeter locally.
@@ -137,27 +108,9 @@ Automated script that starts Docker services and runs JMeter locally.
 
 **Option 1: Edit the script**
 
-Change parameter values in the jmeter command in the run-tests-local.sh script/
+Change parameter values in the jmeter command in the run-tests-local.sh script.
 
 
-**Option 2: Manual execution**
-
-```bash
-# Start services
-docker compose up --wait -d
-
-# Run with your parameters
-jmeter -n -t scenarios/ai-assistant.jmx \
-  -l reports/test-results.csv \
-  -e -o reports \
-  -Jenv=local \
-  -JHTTP_PROTOCOL=http \
-  -JAI_DEFRA_SEARCH_FRONTEND_HOST=localhost \
-  -JAI_DEFRA_SEARCH_FRONTEND_PORT=3000 \
-  -Jthreads=20 \
-  -JrampTime=60 \
-  -Jduration=600
-```
 
 ## Licence
 
