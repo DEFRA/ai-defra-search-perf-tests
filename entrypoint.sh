@@ -32,7 +32,14 @@ jmeter -n -t ${SCENARIOFILE} -e -l "${REPORTFILE}" -o ${JM_REPORTS} -j ${LOGFILE
 -Jenv="${ENVIRONMENT}" \
 -Jdomain="${SERVICE_ENDPOINT}" \
 -Jport="${SERVICE_PORT}" \
--Jprotocol="${SERVICE_URL_SCHEME}"
+-Jprotocol="${SERVICE_URL_SCHEME}" \
+-Jthreads="${THREADS:-50}" \
+-JrampTime="${RAMP_TIME:-10}" \
+-Jduration="${DURATION:-120}" \
+-JhttpTimeout="${HTTP_TIMEOUT:-30000}" \
+-JmaxResponseTime="${MAX_RESPONSE_TIME:-20000}" \
+-JwaitAfterPageLoad="${WAIT_AFTER_PAGE_LOAD:-5000}" \
+-JwaitAfterQuestion="${WAIT_AFTER_QUESTION:-10000}"
 
 # Publish the results into S3 so they can be displayed in the CDP Portal
 if [ -n "$RESULTS_OUTPUT_S3_PATH" ]; then

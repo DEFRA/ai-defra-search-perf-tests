@@ -2,22 +2,57 @@
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="AI Assistant Performance Test">
-      <stringProp name="TestPlan.comments">20 concurrent users - REQUIRES RECORDING ACTUAL UI INTERACTIONS</stringProp>
+      <stringProp name="TestPlan.comments">Dynamic properties - pass via -J flags at runtime</stringProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments">
-          <elementProp name="domain" elementType="Argument">
-            <stringProp name="Argument.name">domain</stringProp>
-            <stringProp name="Argument.value">${__P(domain,localhost)}</stringProp>
+          <elementProp name="HTTP_PROTOCOL" elementType="Argument">
+            <stringProp name="Argument.name">HTTP_PROTOCOL</stringProp>
+            <stringProp name="Argument.value">${__P(HTTP_PROTOCOL,http)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="port" elementType="Argument">
-            <stringProp name="Argument.name">port</stringProp>
-            <stringProp name="Argument.value">${__P(port,3000)}</stringProp>
+          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_HOST" elementType="Argument">
+            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_HOST</stringProp>
+            <stringProp name="Argument.value">${__P(AI_DEFRA_SEARCH_FRONTEND_HOST,localhost)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="protocol" elementType="Argument">
-            <stringProp name="Argument.name">protocol</stringProp>
-            <stringProp name="Argument.value">${__P(protocol,http)}</stringProp>
+          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_PORT" elementType="Argument">
+            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_PORT</stringProp>
+            <stringProp name="Argument.value">${__P(AI_DEFRA_SEARCH_FRONTEND_PORT,3000)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="threads" elementType="Argument">
+            <stringProp name="Argument.name">threads</stringProp>
+            <stringProp name="Argument.value">${__P(threads,4)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="rampTime" elementType="Argument">
+            <stringProp name="Argument.name">rampTime</stringProp>
+            <stringProp name="Argument.value">${__P(rampTime,30)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="duration" elementType="Argument">
+            <stringProp name="Argument.name">duration</stringProp>
+            <stringProp name="Argument.value">${__P(duration,300)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="httpTimeout" elementType="Argument">
+            <stringProp name="Argument.name">httpTimeout</stringProp>
+            <stringProp name="Argument.value">${__P(httpTimeout,60000)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="maxResponseTime" elementType="Argument">
+            <stringProp name="Argument.name">maxResponseTime</stringProp>
+            <stringProp name="Argument.value">${__P(maxResponseTime,30000)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="waitAfterPageLoad" elementType="Argument">
+            <stringProp name="Argument.name">waitAfterPageLoad</stringProp>
+            <stringProp name="Argument.value">${__P(waitAfterPageLoad,3000)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="waitAfterQuestion" elementType="Argument">
+            <stringProp name="Argument.name">waitAfterQuestion</stringProp>
+            <stringProp name="Argument.value">${__P(waitAfterQuestion,5000)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -27,9 +62,10 @@
     </TestPlan>
     <hashTree>
       <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults">
-        <stringProp name="HTTPSampler.domain">${domain}</stringProp>
-        <stringProp name="HTTPSampler.port">${port}</stringProp>
-        <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
+        <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
+        <stringProp name="HTTPSampler.port">${AI_DEFRA_SEARCH_FRONTEND_PORT}</stringProp>
+        <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
+        <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
         <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
           <collectionProp name="Arguments.arguments"/>
         </elementProp>
@@ -51,70 +87,35 @@
         <boolProp name="CookieManager.controlledByThreadGroup">false</boolProp>
       </CookieManager>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="AI Assistant Users - 20 Concurrent">
-        <intProp name="ThreadGroup.num_threads">20</intProp>
-        <intProp name="ThreadGroup.ramp_time">10</intProp>
-        <longProp name="ThreadGroup.duration">60</longProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="AI Assistant Users">
+        <stringProp name="ThreadGroup.num_threads">${__P(threads,4)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(rampTime,30)}</stringProp>
+        <stringProp name="ThreadGroup.duration">${__P(duration,300)}</stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">false</boolProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController">
-          <stringProp name="LoopController.loops">1</stringProp>
-          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">-1</stringProp>
+          <boolProp name="LoopController.continue_forever">true</boolProp>
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 - Load Chat Page" enabled="true">
-          <intProp name="HTTPSampler.response_timeout">30000</intProp>
-          <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
-          <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
-          <stringProp name="HTTPSampler.path">/start</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Page Loaded OK" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="49586">200</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-            <intProp name="Assertion.test_type">16</intProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-          </ResponseAssertion>
-          <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Conversation Container Exists" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="740154499">conversation</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <intProp name="Assertion.test_type">2</intProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-          </ResponseAssertion>
-          <hashTree/>
-          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait 5s After Page Load" enabled="true">
-            <stringProp name="ConstantTimer.delay">5000</stringProp>
-          </ConstantTimer>
-          <hashTree/>
-        </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Submit Question 1 - What is UCD?" enabled="true">
-          <intProp name="HTTPSampler.response_timeout">30000</intProp>
+
+        <!-- ==================== QUESTION 1 ==================== -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 - Submit Question 1 - What is UCD?" enabled="true">
+          <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
           <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
           <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
           <stringProp name="HTTPSampler.path">/start</stringProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-          <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;modelId&quot;:&quot;anthropic.claude-3-haiku-20240307-v1:0&quot;,&quot;question&quot;:&quot;What is UCD?&quot;}</stringProp>
+                <stringProp name="Argument.value">{"modelId":"anthropic.claude-3-haiku-20240307-v1:0","question":"What is UCD?"}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -130,7 +131,7 @@
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response 200 OK" enabled="true">
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response 200 OK After Redirect" enabled="true">
             <collectionProp name="Asserion.test_strings">
               <stringProp name="49586">200</stringProp>
             </collectionProp>
@@ -140,20 +141,10 @@
             <boolProp name="Assertion.assume_success">false</boolProp>
           </ResponseAssertion>
           <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Body Not Empty" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="1469">.+</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <intProp name="Assertion.test_type">2</intProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-          </ResponseAssertion>
-          <hashTree/>
           <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract Conversation ID" enabled="true">
-            <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+            <stringProp name="RegexExtractor.useHeaders">URL</stringProp>
             <stringProp name="RegexExtractor.refname">conversationId</stringProp>
-            <stringProp name="RegexExtractor.regex">(?i)([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})</stringProp>
+            <stringProp name="RegexExtractor.regex">/start/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})</stringProp>
             <stringProp name="RegexExtractor.template">$1$</stringProp>
             <stringProp name="RegexExtractor.default">CONVERSATION_ID_NOT_FOUND</stringProp>
             <stringProp name="RegexExtractor.match_number">1</stringProp>
@@ -164,48 +155,36 @@
             <stringProp name="script">
 log.info("=== QUESTION 1 RESPONSE DEBUG ===")
 log.info("Response Code: " + prev.getResponseCode())
-log.info("Response Body (first 2000 chars): " + prev.getResponseDataAsString().take(2000))
+log.info("Response Body (first 5000 chars): " + prev.getResponseDataAsString().take(5000))
 log.info("Extracted conversationId: " + vars.get("conversationId"))
 log.info("=== END DEBUG ===")
             </stringProp>
           </JSR223PostProcessor>
           <hashTree/>
-          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max 20 Seconds" enabled="true">
-            <stringProp name="DurationAssertion.duration">20000</stringProp>
+          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max Response Time" enabled="true">
+            <stringProp name="DurationAssertion.duration">${maxResponseTime}</stringProp>
           </DurationAssertion>
           <hashTree/>
-          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait 10s After Question Submit" enabled="true">
-            <stringProp name="ConstantTimer.delay">10000</stringProp>
-          </ConstantTimer>
-          <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="03 - Submit Question 2 - Is it good practice?" enabled="true">
-          <intProp name="HTTPSampler.response_timeout">30000</intProp>
+
+        <!-- ==================== POLL ANSWER 1 ==================== -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01b - Poll Answer 1 - Get UCD Response" enabled="true">
+          <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
           <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
           <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
           <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
-          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;modelId&quot;:&quot;anthropic.claude-3-haiku-20240307-v1:0&quot;,&quot;question&quot;:&quot;Is it good practice to adopt in software development?&quot;}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
+            <collectionProp name="Arguments.arguments"/>
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="JSON Content-Type" enabled="true">
-            <collectionProp name="HeaderManager.headers">
-              <elementProp name="" elementType="Header">
-                <stringProp name="Header.name">Content-Type</stringProp>
-                <stringProp name="Header.value">application/json</stringProp>
-              </elementProp>
-            </collectionProp>
-          </HeaderManager>
+          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait Before Polling Answer 1" enabled="true">
+            <stringProp name="ConstantTimer.delay">${waitAfterQuestion}</stringProp>
+          </ConstantTimer>
           <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response 200 OK" enabled="true">
             <collectionProp name="Asserion.test_strings">
@@ -217,9 +196,9 @@ log.info("=== END DEBUG ===")
             <boolProp name="Assertion.assume_success">false</boolProp>
           </ResponseAssertion>
           <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Body Not Empty" enabled="true">
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Contains Expected Answer" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="1469">.+</stringProp>
+              <stringProp name="1990813707">really cool thing called User Centred Design</stringProp>
             </collectionProp>
             <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
             <intProp name="Assertion.test_type">2</intProp>
@@ -227,25 +206,138 @@ log.info("=== END DEBUG ===")
             <boolProp name="Assertion.assume_success">false</boolProp>
           </ResponseAssertion>
           <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Contains Data" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="1469">.+</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <intProp name="Assertion.test_type">2</intProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-          </ResponseAssertion>
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Answer 1" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">
+log.info("=== ANSWER 1 RESPONSE DEBUG ===")
+log.info("Response Code: " + prev.getResponseCode())
+log.info("Response Body (first 5000 chars): " + prev.getResponseDataAsString().take(5000))
+log.info("=== END DEBUG ===")
+            </stringProp>
+          </JSR223PostProcessor>
           <hashTree/>
-          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max 20 Seconds" enabled="true">
-            <stringProp name="DurationAssertion.duration">20000</stringProp>
+          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max Response Time" enabled="true">
+            <stringProp name="DurationAssertion.duration">${maxResponseTime}</stringProp>
           </DurationAssertion>
           <hashTree/>
-          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait 10s After Question Submit" enabled="true">
-            <stringProp name="ConstantTimer.delay">10000</stringProp>
+        </hashTree>
+
+        <!-- ==================== QUESTION 2 ==================== -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Submit Question 2 - Is it good practice?" enabled="true">
+          <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
+          <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
+          <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{"modelId":"anthropic.claude-3-haiku-20240307-v1:0","question":"Is it good practice to adopt in software development?"}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait After Page Load" enabled="true">
+            <stringProp name="ConstantTimer.delay">${waitAfterPageLoad}</stringProp>
           </ConstantTimer>
           <hashTree/>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="JSON Content-Type" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">Content-Type</stringProp>
+                <stringProp name="Header.value">application/json</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response 200 OK After Redirect" enabled="true">
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <intProp name="Assertion.test_type">16</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Response Body" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">
+log.info("=== QUESTION 2 RESPONSE DEBUG ===")
+log.info("Response Code: " + prev.getResponseCode())
+log.info("Response Body (first 5000 chars): " + prev.getResponseDataAsString().take(5000))
+log.info("conversationId: " + vars.get("conversationId"))
+log.info("=== END DEBUG ===")
+            </stringProp>
+          </JSR223PostProcessor>
+          <hashTree/>
+          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max Response Time" enabled="true">
+            <stringProp name="DurationAssertion.duration">${maxResponseTime}</stringProp>
+          </DurationAssertion>
+          <hashTree/>
         </hashTree>
+
+        <!-- ==================== POLL ANSWER 2 ==================== -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02b - Poll Answer 2 - Get Good Practice Response" enabled="true">
+          <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
+          <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
+          <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait Before Polling Answer 2" enabled="true">
+            <stringProp name="ConstantTimer.delay">${waitAfterQuestion}</stringProp>
+          </ConstantTimer>
+          <hashTree/>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response 200 OK" enabled="true">
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="49586">200</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+            <intProp name="Assertion.test_type">16</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Contains Expected Answer" enabled="true">
+            <collectionProp name="Asserion.test_strings">
+              <stringProp name="-596188330">produce much better software geared towards users needs</stringProp>
+            </collectionProp>
+            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+            <intProp name="Assertion.test_type">2</intProp>
+            <stringProp name="Assertion.custom_message"></stringProp>
+            <boolProp name="Assertion.assume_success">false</boolProp>
+          </ResponseAssertion>
+          <hashTree/>
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Answer 2" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="script">
+log.info("=== ANSWER 2 RESPONSE DEBUG ===")
+log.info("Response Code: " + prev.getResponseCode())
+log.info("Response Body (first 5000 chars): " + prev.getResponseDataAsString().take(5000))
+log.info("=== END DEBUG ===")
+            </stringProp>
+          </JSR223PostProcessor>
+          <hashTree/>
+          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max Response Time" enabled="true">
+            <stringProp name="DurationAssertion.duration">${maxResponseTime}</stringProp>
+          </DurationAssertion>
+          <hashTree/>
+        </hashTree>
+
       </hashTree>
       <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
@@ -263,7 +355,7 @@ log.info("=== END DEBUG ===")
             <dataType>true</dataType>
             <encoding>false</encoding>
             <assertions>true</assertions>
-            <subresults>true</subresults>
+            <subresults>false</subresults>
             <responseData>true</responseData>
             <samplerData>true</samplerData>
             <xml>false</xml>
@@ -284,47 +376,6 @@ log.info("=== END DEBUG ===")
         <stringProp name="filename">${__time(yyyyMMdd-HHmmss)}-ai-assistant-report.csv</stringProp>
         <boolProp name="ResultCollector.success_only_logging">false</boolProp>
       </ResultCollector>
-      <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Environment Defined Variables" enabled="true">
-        <collectionProp name="Arguments.arguments">
-          <elementProp name="HTTP_PROTOCOL" elementType="Argument">
-            <stringProp name="Argument.name">HTTP_PROTOCOL</stringProp>
-            <stringProp name="Argument.value">https</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_HOST" elementType="Argument">
-            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_HOST</stringProp>
-            <stringProp name="Argument.value">ai-defra-search-frontend.${__P(env)}.cdp-int.defra.cloud</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_PORT" elementType="Argument">
-            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_PORT</stringProp>
-            <stringProp name="Argument.value">443</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-        </collectionProp>
-        <stringProp name="TestPlan.comments">To be enabled as default and disabled when testing locally</stringProp>
-      </Arguments>
-      <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-        <collectionProp name="Arguments.arguments">
-          <elementProp name="HTTP_PROTOCOL" elementType="Argument">
-            <stringProp name="Argument.name">HTTP_PROTOCOL</stringProp>
-            <stringProp name="Argument.value">http</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_HOST" elementType="Argument">
-            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_HOST</stringProp>
-            <stringProp name="Argument.value">localhost</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_PORT" elementType="Argument">
-            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_PORT</stringProp>
-            <stringProp name="Argument.value">3000</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-        </collectionProp>
-      </Arguments>
       <hashTree/>
     </hashTree>
   </hashTree>
