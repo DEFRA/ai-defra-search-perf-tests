@@ -2,22 +2,57 @@
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="AI Assistant Performance Test">
-      <stringProp name="TestPlan.comments">20 concurrent users - REQUIRES RECORDING ACTUAL UI INTERACTIONS</stringProp>
+      <stringProp name="TestPlan.comments">Dynamic properties - pass via -J flags at runtime</stringProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments">
-          <elementProp name="domain" elementType="Argument">
-            <stringProp name="Argument.name">domain</stringProp>
-            <stringProp name="Argument.value">${__P(domain,localhost)}</stringProp>
+          <elementProp name="HTTP_PROTOCOL" elementType="Argument">
+            <stringProp name="Argument.name">HTTP_PROTOCOL</stringProp>
+            <stringProp name="Argument.value">${__P(HTTP_PROTOCOL,http)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="port" elementType="Argument">
-            <stringProp name="Argument.name">port</stringProp>
-            <stringProp name="Argument.value">${__P(port,3000)}</stringProp>
+          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_HOST" elementType="Argument">
+            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_HOST</stringProp>
+            <stringProp name="Argument.value">${__P(AI_DEFRA_SEARCH_FRONTEND_HOST,localhost)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="protocol" elementType="Argument">
-            <stringProp name="Argument.name">protocol</stringProp>
-            <stringProp name="Argument.value">${__P(protocol,http)}</stringProp>
+          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_PORT" elementType="Argument">
+            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_PORT</stringProp>
+            <stringProp name="Argument.value">${__P(AI_DEFRA_SEARCH_FRONTEND_PORT,3000)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="threads" elementType="Argument">
+            <stringProp name="Argument.name">threads</stringProp>
+            <stringProp name="Argument.value">${__P(threads,4)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="rampTime" elementType="Argument">
+            <stringProp name="Argument.name">rampTime</stringProp>
+            <stringProp name="Argument.value">${__P(rampTime,30)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="duration" elementType="Argument">
+            <stringProp name="Argument.name">duration</stringProp>
+            <stringProp name="Argument.value">${__P(duration,300)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="httpTimeout" elementType="Argument">
+            <stringProp name="Argument.name">httpTimeout</stringProp>
+            <stringProp name="Argument.value">${__P(httpTimeout,60000)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="maxResponseTime" elementType="Argument">
+            <stringProp name="Argument.name">maxResponseTime</stringProp>
+            <stringProp name="Argument.value">${__P(maxResponseTime,30000)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="waitAfterPageLoad" elementType="Argument">
+            <stringProp name="Argument.name">waitAfterPageLoad</stringProp>
+            <stringProp name="Argument.value">${__P(waitAfterPageLoad,3000)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="waitAfterQuestion" elementType="Argument">
+            <stringProp name="Argument.name">waitAfterQuestion</stringProp>
+            <stringProp name="Argument.value">${__P(waitAfterQuestion,5000)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -27,9 +62,10 @@
     </TestPlan>
     <hashTree>
       <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults">
-        <stringProp name="HTTPSampler.domain">${domain}</stringProp>
-        <stringProp name="HTTPSampler.port">${port}</stringProp>
-        <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
+        <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
+        <stringProp name="HTTPSampler.port">${AI_DEFRA_SEARCH_FRONTEND_PORT}</stringProp>
+        <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
+        <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
         <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
           <collectionProp name="Arguments.arguments"/>
         </elementProp>
@@ -51,21 +87,23 @@
         <boolProp name="CookieManager.controlledByThreadGroup">false</boolProp>
       </CookieManager>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="AI Assistant Users - 20 Concurrent">
-        <intProp name="ThreadGroup.num_threads">4</intProp>
-        <intProp name="ThreadGroup.ramp_time">1</intProp>
-        <longProp name="ThreadGroup.duration">0</longProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="AI Assistant Users">
+        <stringProp name="ThreadGroup.num_threads">${__P(threads,4)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(rampTime,30)}</stringProp>
+        <stringProp name="ThreadGroup.duration">${__P(duration,300)}</stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">false</boolProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController">
-          <stringProp name="LoopController.loops">1</stringProp>
-          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">-1</stringProp>
+          <boolProp name="LoopController.continue_forever">true</boolProp>
         </elementProp>
       </ThreadGroup>
       <hashTree>
+
+        <!-- ==================== QUESTION 1 ==================== -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 - Submit Question 1 - What is UCD?" enabled="true">
-          <intProp name="HTTPSampler.response_timeout">30000</intProp>
+          <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
           <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
           <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
           <stringProp name="HTTPSampler.path">/start</stringProp>
@@ -77,7 +115,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;modelId&quot;:&quot;anthropic.claude-3-haiku-20240307-v1:0&quot;,&quot;question&quot;:&quot;What is UCD?&quot;}</stringProp>
+                <stringProp name="Argument.value">{"modelId":"anthropic.claude-3-haiku-20240307-v1:0","question":"What is UCD?"}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -123,13 +161,15 @@ log.info("=== END DEBUG ===")
             </stringProp>
           </JSR223PostProcessor>
           <hashTree/>
-          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max 20 Seconds" enabled="true">
-            <stringProp name="DurationAssertion.duration">20000</stringProp>
+          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max Response Time" enabled="true">
+            <stringProp name="DurationAssertion.duration">${maxResponseTime}</stringProp>
           </DurationAssertion>
           <hashTree/>
         </hashTree>
+
+        <!-- ==================== POLL ANSWER 1 ==================== -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01b - Poll Answer 1 - Get UCD Response" enabled="true">
-          <intProp name="HTTPSampler.response_timeout">30000</intProp>
+          <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
           <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
           <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
           <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
@@ -142,8 +182,8 @@ log.info("=== END DEBUG ===")
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait 4s Before This Request" enabled="true">
-            <stringProp name="ConstantTimer.delay">20000</stringProp>
+          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait Before Polling Answer 1" enabled="true">
+            <stringProp name="ConstantTimer.delay">${waitAfterQuestion}</stringProp>
           </ConstantTimer>
           <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response 200 OK" enabled="true">
@@ -176,13 +216,15 @@ log.info("=== END DEBUG ===")
             </stringProp>
           </JSR223PostProcessor>
           <hashTree/>
-          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max 20 Seconds" enabled="true">
-            <stringProp name="DurationAssertion.duration">20000</stringProp>
+          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max Response Time" enabled="true">
+            <stringProp name="DurationAssertion.duration">${maxResponseTime}</stringProp>
           </DurationAssertion>
           <hashTree/>
         </hashTree>
+
+        <!-- ==================== QUESTION 2 ==================== -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Submit Question 2 - Is it good practice?" enabled="true">
-          <intProp name="HTTPSampler.response_timeout">30000</intProp>
+          <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
           <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
           <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
           <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
@@ -194,15 +236,15 @@ log.info("=== END DEBUG ===")
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;modelId&quot;:&quot;anthropic.claude-3-haiku-20240307-v1:0&quot;,&quot;question&quot;:&quot;Is it good practice to adopt in software development?&quot;}</stringProp>
+                <stringProp name="Argument.value">{"modelId":"anthropic.claude-3-haiku-20240307-v1:0","question":"Is it good practice to adopt in software development?"}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait 2s Before This Request" enabled="true">
-            <stringProp name="ConstantTimer.delay">2000</stringProp>
+          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait After Page Load" enabled="true">
+            <stringProp name="ConstantTimer.delay">${waitAfterPageLoad}</stringProp>
           </ConstantTimer>
           <hashTree/>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="JSON Content-Type" enabled="true">
@@ -235,13 +277,15 @@ log.info("=== END DEBUG ===")
             </stringProp>
           </JSR223PostProcessor>
           <hashTree/>
-          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max 20 Seconds" enabled="true">
-            <stringProp name="DurationAssertion.duration">20000</stringProp>
+          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max Response Time" enabled="true">
+            <stringProp name="DurationAssertion.duration">${maxResponseTime}</stringProp>
           </DurationAssertion>
           <hashTree/>
         </hashTree>
+
+        <!-- ==================== POLL ANSWER 2 ==================== -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02b - Poll Answer 2 - Get Good Practice Response" enabled="true">
-          <intProp name="HTTPSampler.response_timeout">30000</intProp>
+          <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
           <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
           <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
           <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
@@ -254,8 +298,8 @@ log.info("=== END DEBUG ===")
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait 4s Before This Request" enabled="true">
-            <stringProp name="ConstantTimer.delay">20000</stringProp>
+          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait Before Polling Answer 2" enabled="true">
+            <stringProp name="ConstantTimer.delay">${waitAfterQuestion}</stringProp>
           </ConstantTimer>
           <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response 200 OK" enabled="true">
@@ -288,11 +332,12 @@ log.info("=== END DEBUG ===")
             </stringProp>
           </JSR223PostProcessor>
           <hashTree/>
-          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max 20 Seconds" enabled="true">
-            <stringProp name="DurationAssertion.duration">20000</stringProp>
+          <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max Response Time" enabled="true">
+            <stringProp name="DurationAssertion.duration">${maxResponseTime}</stringProp>
           </DurationAssertion>
           <hashTree/>
         </hashTree>
+
       </hashTree>
       <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
@@ -331,47 +376,6 @@ log.info("=== END DEBUG ===")
         <stringProp name="filename">${__time(yyyyMMdd-HHmmss)}-ai-assistant-report.csv</stringProp>
         <boolProp name="ResultCollector.success_only_logging">false</boolProp>
       </ResultCollector>
-      <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Environment Defined Variables" enabled="true">
-        <collectionProp name="Arguments.arguments">
-          <elementProp name="HTTP_PROTOCOL" elementType="Argument">
-            <stringProp name="Argument.name">HTTP_PROTOCOL</stringProp>
-            <stringProp name="Argument.value">https</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_HOST" elementType="Argument">
-            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_HOST</stringProp>
-            <stringProp name="Argument.value">ai-defra-search-frontend.${__P(env)}.cdp-int.defra.cloud</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_PORT" elementType="Argument">
-            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_PORT</stringProp>
-            <stringProp name="Argument.value">443</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-        </collectionProp>
-        <stringProp name="TestPlan.comments">To be enabled as default and disabled when testing locally</stringProp>
-      </Arguments>
-      <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-        <collectionProp name="Arguments.arguments">
-          <elementProp name="HTTP_PROTOCOL" elementType="Argument">
-            <stringProp name="Argument.name">HTTP_PROTOCOL</stringProp>
-            <stringProp name="Argument.value">http</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_HOST" elementType="Argument">
-            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_HOST</stringProp>
-            <stringProp name="Argument.value">localhost</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_PORT" elementType="Argument">
-            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_PORT</stringProp>
-            <stringProp name="Argument.value">3000</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-        </collectionProp>
-      </Arguments>
       <hashTree/>
     </hashTree>
   </hashTree>

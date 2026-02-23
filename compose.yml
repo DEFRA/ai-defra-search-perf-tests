@@ -79,7 +79,7 @@ services:
       - performance-tests
 
   bedrock-mock:
-    image: ai-defra-search-aws-bedrock-stub:latest
+    image: defradigital/ai-defra-search-aws-bedrock-stub:${AI_DEFRA_SEARCH_AWS_BEDROCK_STUB:-latest}
     ports:
       - "8089:8080"
     command:
