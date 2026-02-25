@@ -5,19 +5,19 @@
       <stringProp name="TestPlan.comments">Dynamic properties - pass via -J flags at runtime</stringProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments">
-          <elementProp name="HTTP_PROTOCOL" elementType="Argument">
-            <stringProp name="Argument.name">HTTP_PROTOCOL</stringProp>
-            <stringProp name="Argument.value">${__P(HTTP_PROTOCOL,http)}</stringProp>
+          <elementProp name="protocol" elementType="Argument">
+            <stringProp name="Argument.name">protocol</stringProp>
+            <stringProp name="Argument.value">${__P(protocol,http)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_HOST" elementType="Argument">
-            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_HOST</stringProp>
-            <stringProp name="Argument.value">${__P(AI_DEFRA_SEARCH_FRONTEND_HOST,localhost)}</stringProp>
+          <elementProp name="domain" elementType="Argument">
+            <stringProp name="Argument.name">domain</stringProp>
+            <stringProp name="Argument.value">${__P(domain,localhost)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="AI_DEFRA_SEARCH_FRONTEND_PORT" elementType="Argument">
-            <stringProp name="Argument.name">AI_DEFRA_SEARCH_FRONTEND_PORT</stringProp>
-            <stringProp name="Argument.value">${__P(AI_DEFRA_SEARCH_FRONTEND_PORT,3000)}</stringProp>
+          <elementProp name="port" elementType="Argument">
+            <stringProp name="Argument.name">port</stringProp>
+            <stringProp name="Argument.value">${__P(port,3000)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="threads" elementType="Argument">
@@ -62,9 +62,9 @@
     </TestPlan>
     <hashTree>
       <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults">
-        <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
-        <stringProp name="HTTPSampler.port">${AI_DEFRA_SEARCH_FRONTEND_PORT}</stringProp>
-        <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
+        <stringProp name="HTTPSampler.domain">${domain}</stringProp>
+        <stringProp name="HTTPSampler.port">${port}</stringProp>
+        <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
         <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
         <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
           <collectionProp name="Arguments.arguments"/>
@@ -104,8 +104,8 @@
         <!-- ==================== QUESTION 1 ==================== -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 - Submit Question 1 - What is UCD?" enabled="true">
           <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
-          <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
-          <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
+          <stringProp name="HTTPSampler.domain">${domain}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
           <stringProp name="HTTPSampler.path">/start</stringProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -170,8 +170,8 @@ log.info("=== END DEBUG ===")
         <!-- ==================== POLL ANSWER 1 ==================== -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01b - Poll Answer 1 - Get UCD Response" enabled="true">
           <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
-          <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
-          <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
+          <stringProp name="HTTPSampler.domain">${domain}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
           <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -225,8 +225,8 @@ log.info("=== END DEBUG ===")
         <!-- ==================== QUESTION 2 ==================== -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Submit Question 2 - Is it good practice?" enabled="true">
           <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
-          <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
-          <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
+          <stringProp name="HTTPSampler.domain">${domain}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
           <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -286,8 +286,8 @@ log.info("=== END DEBUG ===")
         <!-- ==================== POLL ANSWER 2 ==================== -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02b - Poll Answer 2 - Get Good Practice Response" enabled="true">
           <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
-          <stringProp name="HTTPSampler.domain">${AI_DEFRA_SEARCH_FRONTEND_HOST}</stringProp>
-          <stringProp name="HTTPSampler.protocol">${HTTP_PROTOCOL}</stringProp>
+          <stringProp name="HTTPSampler.domain">${domain}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
           <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>

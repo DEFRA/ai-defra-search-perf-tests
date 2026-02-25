@@ -50,9 +50,9 @@ jmeter -n -t scenarios/ai-assistant.jmx \
   -l reports/test-results.csv \
   -e -o reports \
   -Jenv=local \
-  -JHTTP_PROTOCOL=http \
-  -JAI_DEFRA_SEARCH_FRONTEND_HOST=localhost \
-  -JAI_DEFRA_SEARCH_FRONTEND_PORT=3000
+  -Jprotocol=http \
+  -Jdomain=localhost \
+  -Jport=3000
 ```
 
 ### Available Parameters
@@ -60,9 +60,9 @@ jmeter -n -t scenarios/ai-assistant.jmx \
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `-Jenv` | Environment name | `local` |
-| `-JHTTP_PROTOCOL` | HTTP scheme | `http` |
-| `-JAI_DEFRA_SEARCH_FRONTEND_HOST` | Target hostname | `localhost` |
-| `-JAI_DEFRA_SEARCH_FRONTEND_PORT` | Target port | `3000` |
+| `-Jprotocol` | HTTP scheme | `http` |
+| `-Jdomain` | Target hostname | `localhost` |
+| `-Jport` | Target port | `3000` |
 | `-Jthreads` | Concurrent users | `20` |
 | `-JrampTime` | Ramp-up time (seconds) | `10` |
 | `-Jduration` | Test duration (seconds) | `60` |
@@ -78,9 +78,9 @@ jmeter -n -t scenarios/ai-assistant.jmx \
   -l reports/test-results.csv \
   -e -o reports \
   -Jenv=local \
-  -JHTTP_PROTOCOL=http \
-  -JAI_DEFRA_SEARCH_FRONTEND_HOST=localhost \
-  -JAI_DEFRA_SEARCH_FRONTEND_PORT=3000 \
+  -Jprotocol=http \
+  -Jdomain=localhost \
+  -Jport=3000 \
   -Jthreads=100 \
   -JrampTime=60 \
   -Jduration=600
