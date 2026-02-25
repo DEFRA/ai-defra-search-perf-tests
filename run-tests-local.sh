@@ -10,10 +10,10 @@ jmeter -n -t scenarios/ai-assistant.jmx \
   -l reports/test-results.csv \
   -e -o reports \
   -Jenv=local \
-  -JHTTP_PROTOCOL=http \
-  -JAI_DEFRA_SEARCH_FRONTEND_HOST=localhost \
-  -JAI_DEFRA_SEARCH_FRONTEND_PORT=3000 \
-  -Jthreads=4 \
+  -Jprotocol=http \
+  -Jdomain=localhost \
+  -Jport=3000 \
+  -Jthreads=2 \
   -JrampTime=30 \
   -Jduration=300 \
   -JhttpTimeout=60000 \
