@@ -109,7 +109,9 @@ services:
       retries: 3
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./compose/scripts/postgres:/docker-entrypoint-initdb.d
+      - ./compose/scripts/postgres/00-truncate-tables.sql:/docker-entrypoint-initdb.d/00-truncate-tables.sql
+      - ./compose/scripts/postgres/01-create-tables.sql:/docker-entrypoint-initdb.d/01-create-tables.sql
+      - ./compose/scripts/postgres/02-seed-postgres.sql:/docker-entrypoint-initdb.d/02-seed-postgres.sql
     env_file:
       - "compose/config/postgres.env"
     networks:

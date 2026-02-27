@@ -17,7 +17,7 @@ jmeter -n -t scenarios/ai-assistant.jmx \
   -Jprotocol=http \
   -Jdomain=localhost \
   -Jport=3000 \
-  -Jthreads=2 \
+  -Jthreads=4 \
   -JrampTime=30 \
   -Jduration=300 \
   -JhttpTimeout=60000 \
