@@ -10,12 +10,16 @@ if [ -z "${JM_HOME}" ]; then
 fi
 
 JM_SCENARIOS=${JM_HOME}/scenarios
-JM_REPORTS=${JM_HOME}/reports
+# Use internal dir for JMeter output - bind mount at /opt/perftest/reports causes "Resource busy"
+# when -f tries to cleanup; we copy to the mount after
+JM_REPORTS_INTERNAL=/tmp/jmeter-reports
+JM_REPORTS=${JM_REPORTS_INTERNAL}
+JM_REPORTS_OUTPUT=${JM_HOME}/reports
 JM_LOGS=${JM_HOME}/logs
 
 mkdir -p ${JM_REPORTS} ${JM_LOGS}
 
-TEST_SCENARIO=${TEST_SCENARIO:-test}
+TEST_SCENARIO=${TEST_SCENARIO:-ai-assistant}
 SCENARIOFILE=${JM_SCENARIOS}/${TEST_SCENARIO}.jmx
 REPORTFILE=${NOW}-perftest-${TEST_SCENARIO}-report.csv
 LOGFILE=${JM_LOGS}/perftest-${TEST_SCENARIO}.log
@@ -40,6 +44,13 @@ jmeter -n -t ${SCENARIOFILE} -e -l "${REPORTFILE}" -o ${JM_REPORTS} -j ${LOGFILE
 -JmaxResponseTime="${MAX_RESPONSE_TIME:-20000}" \
 -JwaitAfterPageLoad="${WAIT_AFTER_PAGE_LOAD:-5000}" \
 -JwaitAfterQuestion="${WAIT_AFTER_QUESTION:-10000}"
+test_exit_code=$?
+
+# Copy to bind-mounted dir for local access (mount at JM_REPORTS_OUTPUT)
+if [ -d "${JM_REPORTS_OUTPUT}" ] && [ -f "${JM_REPORTS}/index.html" ]; then
+  rm -rf "${JM_REPORTS_OUTPUT:?}"/* 2>/dev/null || true
+  cp -r "${JM_REPORTS}"/* "${JM_REPORTS_OUTPUT}/"
+fi
 
 # Publish the results into S3 so they can be displayed in the CDP Portal
 if [ -n "$RESULTS_OUTPUT_S3_PATH" ]; then
