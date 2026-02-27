@@ -1,10 +1,8 @@
--- Initialize PostgreSQL database for AI DEFRA Search performance tests
--- This script runs automatically via /docker-entrypoint-initdb.d/
-
 -- Enable pgvector extension for vector similarity search
 CREATE EXTENSION IF NOT EXISTS vector;
 
--- Create knowledge_vectors table with all required columns
+DROP TABLE IF EXISTS knowledge_vectors CASCADE;
+
 CREATE TABLE knowledge_vectors (
     id SERIAL PRIMARY KEY,
     content TEXT NOT NULL,
@@ -15,5 +13,4 @@ CREATE TABLE knowledge_vectors (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create HNSW index for efficient vector similarity search
 CREATE INDEX ON knowledge_vectors USING hnsw (embedding vector_cosine_ops);

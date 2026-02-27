@@ -20,12 +20,18 @@ SCENARIOFILE=${JM_SCENARIOS}/${TEST_SCENARIO}.jmx
 REPORTFILE=${NOW}-perftest-${TEST_SCENARIO}-report.csv
 LOGFILE=${JM_LOGS}/perftest-${TEST_SCENARIO}.log
 
-# Before running the suite, replace 'service-name' with the name/url of the service to test.
-# ENVIRONMENT is set to the name of th environment the test is running in.
 SERVICE_ENDPOINT=${SERVICE_ENDPOINT:-ai-defra-search-frontend.${ENVIRONMENT}.cdp-int.defra.cloud}
-# PORT is used to set the port of this performance test container
 SERVICE_PORT=${SERVICE_PORT:-443}
 SERVICE_URL_SCHEME=${SERVICE_URL_SCHEME:-https}
+
+# Initialize databases if CREATE_KNOWLEDGE_BASE is set to true
+if [ "$CREATE_KNOWLEDGE_BASE" = "true" ]; then
+  ${JM_HOME}/scripts/setup-databases.sh
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Database seeding failed"
+    exit 1
+  fi
+fi
 
 # Run the test suite
 jmeter -n -t ${SCENARIOFILE} -e -l "${REPORTFILE}" -o ${JM_REPORTS} -j ${LOGFILE} -f \

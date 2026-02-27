@@ -1,10 +1,5 @@
-/**
- * Mongodb script for inserting test data into the docker-compose mongo instance
- */
-// Use the correct database for the data service
 db = db.getSiblingDB('ai-defra-search-data')
-// Create knowledge group in the knowledgeGroups collection
-// Delete existing to make idempotent
+
 db.knowledgeGroups.deleteMany({groupId: 'kg_34vf0wr3e06l'});
 db.knowledgeGroups.insertOne({
   _id: 'kg_34vf0wr3e06l',
@@ -16,9 +11,7 @@ db.knowledgeGroups.insertOne({
   createdAt: new Date(),
   updatedAt: new Date()
 })
-print('Created knowledge group: kg_34vf0wr3e06l')
-// Create knowledge snapshot in the knowledgeSnapshots collection
-// Delete existing to make idempotent
+
 db.knowledgeSnapshots.deleteMany({snapshotId: 'kg_34vf0wr3e06l'});
 db.knowledgeSnapshots.insertOne({
   snapshotId: 'kg_34vf0wr3e06l',
@@ -58,8 +51,7 @@ db.knowledgeSnapshots.insertOne({
     }
   ]
 })
-print('Created knowledge snapshot: kg_34vf0wr3e06l')
-// Verify both were created
+
 var groupCount = db.knowledgeGroups.countDocuments({ groupId: 'kg_34vf0wr3e06l' })
 var snapshotCount = db.knowledgeSnapshots.countDocuments({ snapshotId: 'kg_34vf0wr3e06l' })
 print('Knowledge groups seeded: ' + groupCount)
