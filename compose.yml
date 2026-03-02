@@ -8,6 +8,8 @@ services:
         condition: service_healthy
     env_file:
       - 'compose/config/aws.env'
+      - 'compose/config/postgres.env'
+      - 'compose/config/defaults.env'
     environment:
       S3_ENDPOINT: 'http://localstack:4566'
       RESULTS_OUTPUT_S3_PATH: 's3://test-results'
@@ -23,6 +25,7 @@ services:
       MAX_RESPONSE_TIME: 30000
       WAIT_AFTER_PAGE_LOAD: 3000
       WAIT_AFTER_QUESTION: 5000
+      CREATE_KNOWLEDGE_BASE: 'true'
     networks:
       - performance-tests
 
@@ -106,7 +109,9 @@ services:
       retries: 3
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./compose/scripts/postgres:/docker-entrypoint-initdb.d
+      - ./compose/scripts/postgres/00-truncate-tables.sql:/docker-entrypoint-initdb.d/00-truncate-tables.sql
+      - ./compose/scripts/postgres/01-create-tables.sql:/docker-entrypoint-initdb.d/01-create-tables.sql
+      - ./compose/scripts/postgres/02-seed-postgres.sql:/docker-entrypoint-initdb.d/02-seed-postgres.sql
     env_file:
       - "compose/config/postgres.env"
     networks:

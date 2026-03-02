@@ -2,6 +2,8 @@
 set -x
 
 docker rm -f $(docker ps -aq)
+docker compose down -v
+
 docker compose build --no-cache development
 docker compose up --wait -d
 rm -R ./reports
