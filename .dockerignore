@@ -5,3 +5,4 @@ Dockerfile
 .husky
 jmeter.log
 reports/
+*.csv

@@ -20,70 +20,34 @@ MONGO_PORT=${MONGO_PORT:-27017}
 echo "MongoDB Host: ${MONGO_HOST}"
 echo "MongoDB Port: ${MONGO_PORT}"
 
-TEMP_DIR=$(mktemp -d)
-trap "rm -rf ${TEMP_DIR}" EXIT
+# Determine the data directory location
+# When run from MongoDB Docker entrypoint, the mount point is /docker-entrypoint-initdb.d/
+# When run directly, use the script's own directory
+if [ -d "/docker-entrypoint-initdb.d/data" ]; then
+  DATA_DIR="/docker-entrypoint-initdb.d/data"
+else
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  DATA_DIR="${SCRIPT_DIR}/data"
+fi
 
-# Create knowledge groups JSON file
-cat > "${TEMP_DIR}/knowledgeGroups.json" << 'EOFKG'
-{
-  "_id": "kg_34vf0wr3e06l",
-  "groupId": "kg_34vf0wr3e06l",
-  "title": "UCD Knowledge Base",
-  "description": "Test knowledge base for User-Centered Design",
-  "owner": "test-user",
-  "activeSnapshot": "kg_34vf0wr3e06l",
-  "createdAt": { "$date": "2026-02-27T00:00:00.000Z" },
-  "updatedAt": { "$date": "2026-02-27T00:00:00.000Z" }
-}
-EOFKG
+# Validate that required JSON files exist
+if [ ! -f "${DATA_DIR}/knowledgeGroups.json" ]; then
+  echo "ERROR: Required file not found: ${DATA_DIR}/knowledgeGroups.json"
+  exit 1
+fi
 
-# Create knowledge snapshots JSON file
-cat > "${TEMP_DIR}/knowledgeSnapshots.json" << 'EOFKS'
-{
-  "snapshotId": "kg_34vf0wr3e06l",
-  "groupId": "kg_34vf0wr3e06l",
-  "version": 1,
-  "createdAt": { "$date": "2026-02-27T00:00:00.000Z" },
-  "sources": [
-    {
-      "sourceId": "doc_001",
-      "name": "What is UCD",
-      "location": "test-data",
-      "sourceType": "BLOB"
-    },
-    {
-      "sourceId": "doc_002",
-      "name": "UCD Good Practice",
-      "location": "test-data",
-      "sourceType": "BLOB"
-    },
-    {
-      "sourceId": "doc_003",
-      "name": "Defra and UCD",
-      "location": "test-data",
-      "sourceType": "BLOB"
-    },
-    {
-      "sourceId": "doc_004",
-      "name": "Accessibility in UCD",
-      "location": "test-data",
-      "sourceType": "BLOB"
-    },
-    {
-      "sourceId": "doc_005",
-      "name": "Defra Service Standards",
-      "location": "test-data",
-      "sourceType": "BLOB"
-    }
-  ]
-}
-EOFKS
+if [ ! -f "${DATA_DIR}/knowledgeSnapshots.json" ]; then
+  echo "ERROR: Required file not found: ${DATA_DIR}/knowledgeSnapshots.json"
+  exit 1
+fi
+
+echo "Using seed data from: ${DATA_DIR}"
 
 # Import knowledge groups (upsert mode to replace existing)
 echo "Importing knowledge groups..."
 mongoimport --host="${MONGO_HOST}" --port="${MONGO_PORT}" \
   --db="${DB_NAME}" --collection="knowledgeGroups" \
-  --file="${TEMP_DIR}/knowledgeGroups.json" \
+  --file="${DATA_DIR}/knowledgeGroups.json" \
   --mode=upsert --upsertFields="_id"
 
 if [ $? -ne 0 ]; then
@@ -92,11 +56,10 @@ if [ $? -ne 0 ]; then
 fi
 echo "✓ Knowledge groups imported: 1"
 
-# Import knowledge snapshots (upsert mode to replace existing)
 echo "Importing knowledge snapshots..."
 mongoimport --host="${MONGO_HOST}" --port="${MONGO_PORT}" \
   --db="${DB_NAME}" --collection="knowledgeSnapshots" \
-  --file="${TEMP_DIR}/knowledgeSnapshots.json" \
+  --file="${DATA_DIR}/knowledgeSnapshots.json" \
   --mode=upsert --upsertFields="snapshotId"
 
 if [ $? -ne 0 ]; then

@@ -25,7 +25,7 @@ services:
       MAX_RESPONSE_TIME: 30000
       WAIT_AFTER_PAGE_LOAD: 3000
       WAIT_AFTER_QUESTION: 5000
-      CREATE_KNOWLEDGE_BASE: 'true'
+      CREATE_KNOWLEDGE_BASE: 'tru'
     networks:
       - performance-tests
 

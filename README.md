@@ -7,6 +7,7 @@ Performance tests for the AI Defra Search application using JMeter.
 - [Local Architecture](#local-architecture)
 - [Running Tests Locally with JMeter](#running-tests-locally-with-jmeter)
 - [Running Tests with run-tests-local.sh](#running-tests-with-run-tests-localsh)
+- [Running Tests with run-tests-local-docker.sh](#running-tests-with-run-tests-local-dockersh)
 - [Licence](#licence)
 
 
@@ -92,11 +93,12 @@ Automated script that starts Docker services and runs JMeter locally.
 
 ### What It Does
 
-1. Removes existing containers
-2. Rebuilds `development` service
-3. Starts all services
-4. Removes old reports
-5. Runs JMeter locally
+1. Removes all existing containers
+2. Tears down volumes and networks
+3. Builds the `development` image fresh (with `--no-cache`)
+4. Starts all services and waits for them to be healthy
+5. Removes old reports
+6. Runs JMeter locally against `localhost:3000`
 
 ### Execute
 
@@ -110,6 +112,42 @@ Automated script that starts Docker services and runs JMeter locally.
 
 Change parameter values in the jmeter command in the run-tests-local.sh script.
 
+
+## Running Tests with run-tests-local-docker.sh
+
+Automated script that runs the full test suite entirely within Docker — no local JMeter installation required.
+
+### What It Does
+
+1. Removes all existing containers
+2. Tears down volumes and networks
+3. Removes old reports
+4. Builds the `development` image fresh (with `--no-cache`)
+5. Starts all supporting services and waits for them to be healthy
+6. Runs JMeter inside the `development` container
+7. Removes the container on completion
+
+### Execute
+
+```bash
+./run-tests-local-docker.sh
+```
+
+### Override Parameters
+
+**Option 1: Edit `compose.yml`**
+
+Change the environment variable values under the `development` service in `compose.yml`.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `THREADS` | Concurrent users | `5` |
+| `RAMP_TIME` | Ramp-up time (seconds) | `10` |
+| `DURATION` | Test duration (seconds) | `120` |
+| `HTTP_TIMEOUT` | HTTP timeout (ms) | `60000` |
+| `MAX_RESPONSE_TIME` | Max response time (ms) | `30000` |
+| `WAIT_AFTER_PAGE_LOAD` | Wait after page load (ms) | `3000` |
+| `WAIT_AFTER_QUESTION` | Wait after question (ms) | `5000` |
 
 
 ## Licence
