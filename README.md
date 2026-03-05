@@ -8,6 +8,8 @@ Performance tests for the AI Defra Search application using JMeter.
 - [Running Tests Locally with JMeter](#running-tests-locally-with-jmeter)
 - [Running Tests with run-tests-local.sh](#running-tests-with-run-tests-localsh)
 - [Running Tests with run-tests-local-docker.sh](#running-tests-with-run-tests-local-dockersh)
+- [Seeding the local knowledge base with synthetic data](#seeding-the-local-knowledge-base-with-synthetic-data)
+- [Seeding the perf-test environment knowledge base with synthetic data](#seeding-the-perf-test-environment-knowledge-base-with-synthetic-data)
 - [Licence](#licence)
 
 
@@ -148,6 +150,63 @@ Change the environment variable values under the `development` service in `compo
 | `MAX_RESPONSE_TIME` | Max response time (ms) | `30000` |
 | `WAIT_AFTER_PAGE_LOAD` | Wait after page load (ms) | `3000` |
 | `WAIT_AFTER_QUESTION` | Wait after question (ms) | `5000` |
+
+
+## Seeding the local knowledge base with synthetic data
+
+When running the performance tests locally, both the MongoDB and PostgreSQL databases are automatically seeded with synthetic test data as part of the Docker Compose startup process.
+
+### MongoDB (ai-defra-search-agent)
+
+The MongoDB database is seeded via the `compose/scripts/mongodb/init-mongodb.sh` script, which is mounted into the MongoDB container and executed automatically on first start via the Docker `docker-entrypoint-initdb.d` mechanism.
+
+It uses `mongoimport` to upsert the following collections into the `ai-defra-search-data` database:
+
+| File | Collection |
+|------|------------|
+| `compose/scripts/mongodb/data/knowledgeGroups.json` | `knowledgeGroups` |
+| `compose/scripts/mongodb/data/knowledgeSnapshots.json` | `knowledgeSnapshots` |
+
+### PostgreSQL (ai-defra-search-data)
+
+The PostgreSQL database is seeded via SQL scripts that are mounted into the Postgres container and executed automatically on first start, also via `docker-entrypoint-initdb.d`. The scripts run in order:
+
+| File | Purpose |
+|------|---------|
+| `compose/scripts/postgres/00-truncate-tables.sql` | Clears existing data |
+| `compose/scripts/postgres/01-create-tables.sql` | Creates the `knowledge_vectors` table with the `pgvector` extension |
+| `compose/scripts/postgres/02-seed-postgres.sql` | Inserts synthetic knowledge vector records with `snapshot_id = 'kg_34vf0wr3e06l'` |
+
+### Updating the local seed data
+
+To update the synthetic data used for local runs, edit the files listed above and restart the stack, ensuring volumes are cleared so the init scripts are re-run:
+
+```bash
+docker compose down -v && docker compose up --wait -d
+```
+
+
+## Seeding the perf-test environment knowledge base with synthetic data
+
+The performance tests cannot access the ai-defra-search-agent (MongoDB) or ai-defra-search-data (PostgreSQL) databases. As a result we cannot control the seeding of the perf-test databases from this codebase as we do for the performance tests locally.
+
+In order to seed the databases in perf-test we need to follow this process:
+
+1. Create a hotfix branch by following these instructions: https://portal.cdp-int.defra.cloud/documentation/how-to/hotfix-builds.md?q=Hotfix
+2. On deployment of the hotfix branch to perf-test the relevant database will be seeded with the test data.
+3. Deploy the actual version of the ai-defra-search-agent & ai-defra-search-data services that you want to be part of the performance tests.
+
+Whenever you want to update the synthetic data checkout the hotfix branch for each service (branches detailed below) and update the following files:
+
+1. ai-defra-search-data: `app/common/seed_data/knowledge_vectors.sql`
+2. ai-defra-search-agent: `perf-tests/data/knowledgeGroups.json` & `perf-tests/data/knowledgeSnapshots.json`
+
+When you update the files you can check that your changes work by starting the application stack via docker compose.
+
+### Active hotfix branches
+
+- **ai-defra-search-agent**: https://github.com/DEFRA/ai-defra-search-agent/tree/AICE-349-SEED-KNOWLEDGE-BASE-HOT-FIX
+- **ai-defra-search-data**: https://github.com/DEFRA/ai-defra-search-data/tree/AICE-349-SEED-PERF-DB-HOTFIX
 
 
 ## Licence
