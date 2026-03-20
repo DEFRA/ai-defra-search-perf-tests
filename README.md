@@ -175,7 +175,7 @@ The PostgreSQL database is seeded via SQL scripts that are mounted into the Post
 |------|---------|
 | `compose/scripts/postgres/00-truncate-tables.sql` | Clears existing data |
 | `compose/scripts/postgres/01-create-tables.sql` | Creates the `knowledge_vectors` table with the `pgvector` extension |
-| `compose/scripts/postgres/02-seed-postgres.sql` | Inserts synthetic knowledge vector records with `snapshot_id = 'kg_34vf0wr3e06l'` |
+| `compose/scripts/postgres/02-seed-postgres.sql` | Inserts synthetic knowledge vector records with `metadata->>'knowledge_group_id' = '674f1f77bcf86cd799439011'` |
 
 ### Updating the local seed data
 
