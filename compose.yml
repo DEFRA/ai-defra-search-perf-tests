@@ -123,8 +123,8 @@ services:
   # Add the services you want to test below.
   #
   ################################################################################
-  ai-defra-search-data:
-    image: defradigital/ai-defra-search-data:${AI_DEFRA_SEARCH_DATA:-latest}
+  ai-defra-search-knowledge:
+    image: defradigital/ai-defra-search-knowledge:${AI_DEFRA_SEARCH_KNOWLEDGE:-latest}
     ports:
       - 8085:8085
       - 5678:5678
@@ -144,7 +144,7 @@ services:
       PORT: 8085
       AWS_ENDPOINT_URL_BEDROCK_RUNTIME: ${AWS_ENDPOINT_URL_BEDROCK_RUNTIME:-http://bedrock-mock:8080}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://ai-defra-search-data:8085/health"]
+      test: ["CMD", "curl", "-f", "http://ai-defra-search-knowledge:8085/health"]
       interval: 5s
       start_period: 10s
       retries: 3
@@ -198,8 +198,7 @@ services:
       AWS_EMF_SERVICE_TYPE: ${AWS_EMF_SERVICE_TYPE:-python-backend-service}
       AWS_BEDROCK_DEFAULT_GENERATION_MODEL: ${AWS_BEDROCK_DEFAULT_GENERATION_MODEL:-}
       AWS_BEDROCK_MAX_OUTPUT_TOKENS: ${AWS_BEDROCK_MAX_OUTPUT_TOKENS:-4096}
-      KNOWLEDGE_BASE_URL: ${KNOWLEDGE_BASE_URL:-http://ai-defra-search-data:8085}
-      KNOWLEDGE_GROUP_ID: ${KNOWLEDGE_GROUP_ID:-kg_34vf0wr3e06l}
+      KNOWLEDGE_BASE_URL: ${KNOWLEDGE_BASE_URL:-http://ai-defra-search-knowledge:8085}
       KNOWLEDGE_SIMILARITY_THRESHOLD: ${KNOWLEDGE_SIMILARITY_THRESHOLD:-0.5}
       LOCALSTACK_URL: ${LOCALSTACK_URL:-http://localstack:4566}
       CHAT_QUEUE_URL: ${CHAT_QUEUE_URL:-http://sqs.eu-west-2.localstack:4566/000000000000/chat-job-queue}
@@ -214,7 +213,7 @@ services:
         condition: service_healthy
       bedrock-mock:
         condition: service_healthy
-      ai-defra-search-data:
+      ai-defra-search-knowledge:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "http://ai-defra-search-agent:8086/health"]

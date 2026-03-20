@@ -6,7 +6,7 @@ echo "Initializing MongoDB database..."
 echo "==================================================================="
 
 MONGO_URI="${MONGO_URI:-mongodb://localhost:27017/}"
-DB_NAME="ai-defra-search-data"
+DB_NAME="ai-defra-search-knowledge"
 
 echo "MongoDB URI: ${MONGO_URI}"
 echo "Database: ${DB_NAME}"
