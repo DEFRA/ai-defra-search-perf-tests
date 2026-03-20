@@ -162,6 +162,9 @@ services:
       PROTOTYPE_PASSWORD: ${PROTOTYPE_PASSWORD:-}
       API_BASE_URL: ${API_BASE_URL:-http://ai-defra-search-agent:8086}
       AUTH_ENABLED: false
+      CDP_UPLOADER_URL: ${CDP_UPLOADER_URL:-http://localhost:7337}
+      CDP_UPLOAD_CALLBACK_URL: ${CDP_UPLOAD_CALLBACK_URL:-http://ai-defra-search-frontend:3000/upload/callback}
+      UPLOAD_BUCKET_NAME: ${UPLOAD_BUCKET_NAME:-perf-test-upload-bucket}
       MS_ENTRA_CLIENT_ID: ${MS_ENTRA_CLIENT_ID:-local-dev-client-id}
       MS_ENTRA_CLIENT_SECRET: ${MS_ENTRA_CLIENT_SECRET:-local-dev-tenant-secret}
       MS_ENTRA_REDIRECT_HOST: ${MS_ENTRA_REDIRECT_HOST:-http://ai-defra-search-frontend:3000}
