@@ -1,7 +1,6 @@
 #!/bin/sh
 set -x
 
-docker rm -f $(docker ps -aq)
 docker compose down -v
 
 docker compose build --no-cache development
@@ -15,10 +14,12 @@ jmeter -n -t scenarios/ai-assistant.jmx \
   -Jprotocol=http \
   -Jdomain=localhost \
   -Jport=3000 \
-  -Jthreads=2 \
-  -JrampTime=30 \
-  -Jduration=300 \
-  -JhttpTimeout=60000 \
-  -JmaxResponseTime=30000 \
-  -JwaitAfterPageLoad=5000 \
-  -JwaitAfterQuestion=8000
+  -JagentDomain=localhost \
+  -JagentPort=8086 \
+  -Jthreads="${THREADS:-2}" \
+  -JrampTime="${RAMP_TIME:-30}" \
+  -Jduration="${DURATION:-300}" \
+  -JhttpTimeout="${HTTP_TIMEOUT:-60000}" \
+  -JmaxResponseTime="${MAX_RESPONSE_TIME:-30000}" \
+  -JwaitAfterPageLoad="${WAIT_AFTER_PAGE_LOAD:-5000}" \
+  -JwaitAfterQuestion="${WAIT_AFTER_QUESTION:-8000}"

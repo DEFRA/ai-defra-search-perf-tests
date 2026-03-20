@@ -18,13 +18,15 @@ services:
       SERVICE_ENDPOINT: ai-defra-search-frontend
       SERVICE_PORT: 3000
       SERVICE_URL_SCHEME: http
-      THREADS: 5
-      RAMP_TIME: 10
-      DURATION: 120
-      HTTP_TIMEOUT: 60000
-      MAX_RESPONSE_TIME: 30000
-      WAIT_AFTER_PAGE_LOAD: 3000
-      WAIT_AFTER_QUESTION: 5000
+      AGENT_SERVICE_ENDPOINT: ${AGENT_SERVICE_ENDPOINT:-ai-defra-search-agent}
+      AGENT_SERVICE_PORT: ${AGENT_SERVICE_PORT:-8086}
+      THREADS: ${THREADS:-5}
+      RAMP_TIME: ${RAMP_TIME:-10}
+      DURATION: ${DURATION:-120}
+      HTTP_TIMEOUT: ${HTTP_TIMEOUT:-60000}
+      MAX_RESPONSE_TIME: ${MAX_RESPONSE_TIME:-30000}
+      WAIT_AFTER_PAGE_LOAD: ${WAIT_AFTER_PAGE_LOAD:-3000}
+      WAIT_AFTER_QUESTION: ${WAIT_AFTER_QUESTION:-5000}
       CREATE_KNOWLEDGE_BASE: 'true'
     networks:
       - performance-tests
@@ -123,8 +125,8 @@ services:
   # Add the services you want to test below.
   #
   ################################################################################
-  ai-defra-search-data:
-    image: defradigital/ai-defra-search-data:${AI_DEFRA_SEARCH_DATA:-latest}
+  ai-defra-search-knowledge:
+    image: defradigital/ai-defra-search-knowledge:${AI_DEFRA_SEARCH_KNOWLEDGE:-latest}
     ports:
       - 8085:8085
       - 5678:5678
@@ -144,7 +146,7 @@ services:
       PORT: 8085
       AWS_ENDPOINT_URL_BEDROCK_RUNTIME: ${AWS_ENDPOINT_URL_BEDROCK_RUNTIME:-http://bedrock-mock:8080}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://ai-defra-search-data:8085/health"]
+      test: ["CMD", "curl", "-f", "http://ai-defra-search-knowledge:8085/health"]
       interval: 5s
       start_period: 10s
       retries: 3
@@ -162,6 +164,9 @@ services:
       PROTOTYPE_PASSWORD: ${PROTOTYPE_PASSWORD:-}
       API_BASE_URL: ${API_BASE_URL:-http://ai-defra-search-agent:8086}
       AUTH_ENABLED: false
+      CDP_UPLOADER_URL: ${CDP_UPLOADER_URL:-http://localhost:7337}
+      CDP_UPLOAD_CALLBACK_URL: ${CDP_UPLOAD_CALLBACK_URL:-http://ai-defra-search-frontend:3000/upload/callback}
+      UPLOAD_BUCKET_NAME: ${UPLOAD_BUCKET_NAME:-perf-test-upload-bucket}
       MS_ENTRA_CLIENT_ID: ${MS_ENTRA_CLIENT_ID:-local-dev-client-id}
       MS_ENTRA_CLIENT_SECRET: ${MS_ENTRA_CLIENT_SECRET:-local-dev-tenant-secret}
       MS_ENTRA_REDIRECT_HOST: ${MS_ENTRA_REDIRECT_HOST:-http://ai-defra-search-frontend:3000}
@@ -198,8 +203,7 @@ services:
       AWS_EMF_SERVICE_TYPE: ${AWS_EMF_SERVICE_TYPE:-python-backend-service}
       AWS_BEDROCK_DEFAULT_GENERATION_MODEL: ${AWS_BEDROCK_DEFAULT_GENERATION_MODEL:-}
       AWS_BEDROCK_MAX_OUTPUT_TOKENS: ${AWS_BEDROCK_MAX_OUTPUT_TOKENS:-4096}
-      KNOWLEDGE_BASE_URL: ${KNOWLEDGE_BASE_URL:-http://ai-defra-search-data:8085}
-      KNOWLEDGE_GROUP_ID: ${KNOWLEDGE_GROUP_ID:-kg_34vf0wr3e06l}
+      KNOWLEDGE_BASE_URL: ${KNOWLEDGE_BASE_URL:-http://ai-defra-search-knowledge:8085}
       KNOWLEDGE_SIMILARITY_THRESHOLD: ${KNOWLEDGE_SIMILARITY_THRESHOLD:-0.5}
       LOCALSTACK_URL: ${LOCALSTACK_URL:-http://localstack:4566}
       CHAT_QUEUE_URL: ${CHAT_QUEUE_URL:-http://sqs.eu-west-2.localstack:4566/000000000000/chat-job-queue}
@@ -214,7 +218,7 @@ services:
         condition: service_healthy
       bedrock-mock:
         condition: service_healthy
-      ai-defra-search-data:
+      ai-defra-search-knowledge:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "http://ai-defra-search-agent:8086/health"]

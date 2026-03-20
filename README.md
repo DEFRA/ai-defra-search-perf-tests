@@ -31,8 +31,8 @@ The `compose.yml` file starts the following services:
 
 | Service | Purpose | Port | Dependencies |
 |---------|---------|------|--------------|
-| **ai-defra-search-data** | Vector search API | 8085 | localstack, mongodb, postgres |
-| **ai-defra-search-agent** | RAG agent backend | 8086 | mongodb, bedrock-mock, ai-defra-search-data |
+| **ai-defra-search-knowledge** | Knowledge/RAG API | 8085 | localstack, mongodb, postgres |
+| **ai-defra-search-agent** | RAG agent backend | 8086 | mongodb, bedrock-mock, ai-defra-search-knowledge |
 | **ai-defra-search-frontend** | Web UI (under test) | 3000 | ai-defra-search-agent, redis |
 | **development** | JMeter test runner | - | ai-defra-search-frontend |
 
@@ -73,6 +73,11 @@ jmeter -n -t scenarios/ai-assistant.jmx \
 | `-JmaxResponseTime` | Max response time (ms) | `20000` |
 | `-JwaitAfterPageLoad` | Wait after page load (ms) | `5000` |
 | `-JwaitAfterQuestion` | Wait after question (ms) | `10000` |
+| `-JagentDomain` | Hostname for agent `GET /conversations/{id}` (RAG assertion) | `localhost` |
+| `-JagentPort` | Port for agent API | `8086` |
+| `-JknowledgeGroupId` | Mongo id of the knowledge group used in chat requests | (see `ai-assistant.jmx`) |
+
+After each frontend poll step, the scenario calls the agent conversation API and fails if the latest assistant message has `ragError` set (RAG retrieval failed). Use the same host you use to reach the agent from the JMeter process (`localhost` when JMeter runs on the host with compose ports published; `ai-defra-search-agent` when JMeter runs inside the perf `development` container — the compose `entrypoint.sh` passes this via `AGENT_SERVICE_ENDPOINT`).
 
 ### Override Parameters
 
@@ -156,18 +161,18 @@ Change the environment variable values under the `development` service in `compo
 
 When running the performance tests locally, both the MongoDB and PostgreSQL databases are automatically seeded with synthetic test data as part of the Docker Compose startup process.
 
-### MongoDB (ai-defra-search-agent)
+### MongoDB (ai-defra-search-knowledge)
 
 The MongoDB database is seeded via the `compose/scripts/mongodb/init-mongodb.sh` script, which is mounted into the MongoDB container and executed automatically on first start via the Docker `docker-entrypoint-initdb.d` mechanism.
 
-It uses `mongoimport` to upsert the following collections into the `ai-defra-search-data` database:
+It uses `mongoimport` to upsert the following collections into the `ai-defra-search-knowledge` database:
 
 | File | Collection |
 |------|------------|
 | `compose/scripts/mongodb/data/knowledgeGroups.json` | `knowledgeGroups` |
-| `compose/scripts/mongodb/data/knowledgeSnapshots.json` | `knowledgeSnapshots` |
+| `compose/scripts/mongodb/data/documents.json` | `documents` |
 
-### PostgreSQL (ai-defra-search-data)
+### PostgreSQL (ai-defra-search-knowledge)
 
 The PostgreSQL database is seeded via SQL scripts that are mounted into the Postgres container and executed automatically on first start, also via `docker-entrypoint-initdb.d`. The scripts run in order:
 
@@ -175,7 +180,7 @@ The PostgreSQL database is seeded via SQL scripts that are mounted into the Post
 |------|---------|
 | `compose/scripts/postgres/00-truncate-tables.sql` | Clears existing data |
 | `compose/scripts/postgres/01-create-tables.sql` | Creates the `knowledge_vectors` table with the `pgvector` extension |
-| `compose/scripts/postgres/02-seed-postgres.sql` | Inserts synthetic knowledge vector records with `snapshot_id = 'kg_34vf0wr3e06l'` |
+| `compose/scripts/postgres/02-seed-postgres.sql` | Inserts synthetic knowledge vector records with `metadata->>'knowledge_group_id' = '674f1f77bcf86cd799439011'` |
 
 ### Updating the local seed data
 
@@ -188,17 +193,17 @@ docker compose down -v && docker compose up --wait -d
 
 ## Seeding the perf-test environment knowledge base with synthetic data
 
-The performance tests cannot access the ai-defra-search-agent (MongoDB) or ai-defra-search-data (PostgreSQL) databases. As a result we cannot control the seeding of the perf-test databases from this codebase as we do for the performance tests locally.
+The performance tests cannot access the ai-defra-search-agent (MongoDB) or ai-defra-search-knowledge (PostgreSQL) databases. As a result we cannot control the seeding of the perf-test databases from this codebase as we do for the performance tests locally.
 
 In order to seed the databases in perf-test we need to follow this process:
 
 1. Create a hotfix branch by following these instructions: https://portal.cdp-int.defra.cloud/documentation/how-to/hotfix-builds.md?q=Hotfix
 2. On deployment of the hotfix branch to perf-test the relevant database will be seeded with the test data.
-3. Deploy the actual version of the ai-defra-search-agent & ai-defra-search-data services that you want to be part of the performance tests.
+3. Deploy the actual version of the ai-defra-search-agent & ai-defra-search-knowledge services that you want to be part of the performance tests.
 
 Whenever you want to update the synthetic data checkout the hotfix branch for each service (branches detailed below) and update the following files:
 
-1. ai-defra-search-data: `app/common/seed_data/knowledge_vectors.sql`
+1. ai-defra-search-knowledge: `app/common/seed_data/knowledge_vectors.sql`
 2. ai-defra-search-agent: `perf-tests/data/knowledgeGroups.json` & `perf-tests/data/knowledgeSnapshots.json`
 
 When you update the files you can check that your changes work by starting the application stack via docker compose.
@@ -206,7 +211,6 @@ When you update the files you can check that your changes work by starting the a
 ### Active hotfix branches
 
 - **ai-defra-search-agent**: https://github.com/DEFRA/ai-defra-search-agent/tree/AICE-349-SEED-KNOWLEDGE-BASE-HOT-FIX
-- **ai-defra-search-data**: https://github.com/DEFRA/ai-defra-search-data/tree/AICE-349-SEED-PERF-DB-HOTFIX
 
 
 ## Licence

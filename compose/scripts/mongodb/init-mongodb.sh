@@ -6,7 +6,7 @@ echo "Initializing MongoDB database..."
 echo "==================================================================="
 
 MONGO_URI="${MONGO_URI:-mongodb://localhost:27017/}"
-DB_NAME="ai-defra-search-data"
+DB_NAME="ai-defra-search-knowledge"
 
 echo "MongoDB URI: ${MONGO_URI}"
 echo "Database: ${DB_NAME}"
@@ -36,8 +36,8 @@ if [ ! -f "${DATA_DIR}/knowledgeGroups.json" ]; then
   exit 1
 fi
 
-if [ ! -f "${DATA_DIR}/knowledgeSnapshots.json" ]; then
-  echo "ERROR: Required file not found: ${DATA_DIR}/knowledgeSnapshots.json"
+if [ ! -f "${DATA_DIR}/documents.json" ]; then
+  echo "ERROR: Required file not found: ${DATA_DIR}/documents.json"
   exit 1
 fi
 
@@ -56,17 +56,17 @@ if [ $? -ne 0 ]; then
 fi
 echo "✓ Knowledge groups imported: 1"
 
-echo "Importing knowledge snapshots..."
+echo "Importing documents..."
 mongoimport --host="${MONGO_HOST}" --port="${MONGO_PORT}" \
-  --db="${DB_NAME}" --collection="knowledgeSnapshots" \
-  --file="${DATA_DIR}/knowledgeSnapshots.json" \
-  --mode=upsert --upsertFields="snapshotId"
+  --db="${DB_NAME}" --collection="documents" \
+  --file="${DATA_DIR}/documents.json" \
+  --mode=upsert --upsertFields="_id"
 
 if [ $? -ne 0 ]; then
-  echo "ERROR: Failed to import knowledge snapshots"
+  echo "ERROR: Failed to import documents"
   exit 1
 fi
-echo "✓ Knowledge snapshots imported: 1"
+echo "✓ Documents imported: 5"
 
 echo "==================================================================="
 echo "MongoDB initialization completed successfully"
