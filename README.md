@@ -73,6 +73,11 @@ jmeter -n -t scenarios/ai-assistant.jmx \
 | `-JmaxResponseTime` | Max response time (ms) | `20000` |
 | `-JwaitAfterPageLoad` | Wait after page load (ms) | `5000` |
 | `-JwaitAfterQuestion` | Wait after question (ms) | `10000` |
+| `-JagentDomain` | Hostname for agent `GET /conversations/{id}` (RAG assertion) | `localhost` |
+| `-JagentPort` | Port for agent API | `8086` |
+| `-JknowledgeGroupId` | Mongo id of the knowledge group used in chat requests | (see `ai-assistant.jmx`) |
+
+After each frontend poll step, the scenario calls the agent conversation API and fails if the latest assistant message has `ragError` set (RAG retrieval failed). Use the same host you use to reach the agent from the JMeter process (`localhost` when JMeter runs on the host with compose ports published; `ai-defra-search-agent` when JMeter runs inside the perf `development` container — the compose `entrypoint.sh` passes this via `AGENT_SERVICE_ENDPOINT`).
 
 ### Override Parameters
 
