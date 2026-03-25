@@ -24,13 +24,17 @@ SERVICE_ENDPOINT=${SERVICE_ENDPOINT:-ai-defra-search-frontend.${ENVIRONMENT}.cdp
 SERVICE_PORT=${SERVICE_PORT:-443}
 SERVICE_URL_SCHEME=${SERVICE_URL_SCHEME:-https}
 
-# Initialize databases if CREATE_KNOWLEDGE_BASE is set to true
-if [ "$CREATE_KNOWLEDGE_BASE" = "true" ]; then
+# Initialize databases if CREATE_KNOWLEDGE_BASE is true (case-insensitive; 1/yes accepted)
+CKB=$(printf '%s' "${CREATE_KNOWLEDGE_BASE:-}" | tr '[:upper:]' '[:lower:]')
+if [ "$CKB" = "true" ] || [ "$CKB" = "1" ] || [ "$CKB" = "yes" ]; then
+  echo "CREATE_KNOWLEDGE_BASE is enabled — running database seeding before JMeter"
   ${JM_HOME}/scripts/setup-databases.sh
   if [ $? -ne 0 ]; then
     echo "ERROR: Database seeding failed"
     exit 1
   fi
+else
+  echo "CREATE_KNOWLEDGE_BASE is not enabled (got '${CREATE_KNOWLEDGE_BASE:-}') — skipping database seeding. Set to true and provide MONGO_URI / POSTGRES_* for perf-test."
 fi
 
 # Run the test suite
@@ -48,6 +52,7 @@ jmeter -n -t ${SCENARIOFILE} -e -l "${REPORTFILE}" -o ${JM_REPORTS} -j ${LOGFILE
 -JwaitAfterQuestion="${WAIT_AFTER_QUESTION:-10000}" \
 -JagentDomain="${AGENT_SERVICE_ENDPOINT:-localhost}" \
 -JagentPort="${AGENT_SERVICE_PORT:-8086}"
+JMETER_EXIT=$?
 
 # Publish the results into S3 so they can be displayed in the CDP Portal
 if [ -n "$RESULTS_OUTPUT_S3_PATH" ]; then
@@ -67,4 +72,4 @@ else
    exit 1
 fi
 
-exit $test_exit_code
+exit "${JMETER_EXIT:-0}"

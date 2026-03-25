@@ -29,7 +29,8 @@ echo "PostgreSQL is ready!"
 
 # In local environment, tables are already created by docker-entrypoint-initdb.d scripts
 # In perf-test environment, tables exist but need to be truncated
-if [ "${ENVIRONMENT:-}" = "perf-test" ]; then
+ENV_LOWER=$(printf '%s' "${ENVIRONMENT:-}" | tr '[:upper:]' '[:lower:]')
+if [ "$ENV_LOWER" = "perf-test" ]; then
   echo "Perf-test environment detected - truncating existing data from tables..."
   echo "Executing 00-truncate-tables.sql..."
   psql -h "${POSTGRES_HOST}" -p "${POSTGRES_PORT}" -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" \

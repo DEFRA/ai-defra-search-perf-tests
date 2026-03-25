@@ -18,7 +18,11 @@ export MONGO_URI="${MONGO_URI:-mongodb://localhost:27017/}"
 
 echo "Environment: ${ENVIRONMENT}"
 echo "PostgreSQL: ${POSTGRES_USER}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
-echo "MongoDB: ${MONGO_URI}"
+if [ -n "${MONGO_URI}" ]; then
+  echo "MongoDB: MONGO_URI is set (${#MONGO_URI} chars — not printed; use full URI with TLS params for DocumentDB)"
+else
+  echo "MongoDB: MONGO_URI is unset (will use init-mongodb.sh default)"
+fi
 echo "==================================================================="
 
 echo "Initializing PostgreSQL..."
