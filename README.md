@@ -193,24 +193,18 @@ docker compose down -v && docker compose up --wait -d
 
 ## Seeding the perf-test environment knowledge base with synthetic data
 
-The performance tests cannot access the ai-defra-search-agent (MongoDB) or ai-defra-search-knowledge (PostgreSQL) databases. As a result we cannot control the seeding of the perf-test databases from this codebase as we do for the performance tests locally.
+The perf-test **runner** can seed MongoDB and PostgreSQL **before JMeter** when both are true:
 
-In order to seed the databases in perf-test we need to follow this process:
+1. **`CREATE_KNOWLEDGE_BASE`** is enabled (`true`, `1`, or `yes`, case-insensitive — not only the exact string `true`).
+2. The job supplies connection settings the runner can use from the CDP network:
+   - **`MONGO_URI`**: full connection string for DocumentDB (TLS, user, password, `tlsCAFile` / `authSource` in the URI as required). The seed script uses `mongoimport --uri=...` so it is **not** limited to host + port.
+   - **`POSTGRES_HOST`**, **`POSTGRES_PORT`**, **`POSTGRES_DB`**, **`POSTGRES_USER`**, **`POSTGRES_PASSWORD`**, and usually **`POSTGRES_SSL_MODE=require`** (or whatever your RDS/DocumentDB proxy needs).
 
-1. Create a hotfix branch by following these instructions: https://portal.cdp-int.defra.cloud/documentation/how-to/hotfix-builds.md?q=Hotfix
-2. On deployment of the hotfix branch to perf-test the relevant database will be seeded with the test data.
-3. Deploy the actual version of the ai-defra-search-agent & ai-defra-search-knowledge services that you want to be part of the performance tests.
+`entrypoint.sh` runs `scripts/setup-databases.sh` when seeding is enabled; otherwise it logs that seeding was skipped (check CDP logs if fixtures are missing).
 
-Whenever you want to update the synthetic data checkout the hotfix branch for each service (branches detailed below) and update the following files:
+Set **`ENVIRONMENT=perf-test`** so Postgres seeding truncates `knowledge_vectors` before re-inserting (case-insensitive). Mongo uses **upserts** on `_id` for `knowledgeGroups` and `documents` (see `compose/scripts/mongodb/data/`).
 
-1. ai-defra-search-knowledge: `app/common/seed_data/knowledge_vectors.sql`
-2. ai-defra-search-agent: `perf-tests/data/knowledgeGroups.json` & `perf-tests/data/knowledgeSnapshots.json`
-
-When you update the files you can check that your changes work by starting the application stack via docker compose.
-
-### Active hotfix branches
-
-- **ai-defra-search-agent**: https://github.com/DEFRA/ai-defra-search-agent/tree/AICE-349-SEED-KNOWLEDGE-BASE-HOT-FIX
+If the perf job **cannot** reach the databases (network policy), you must seed by another path (e.g. one-off task, migration, or pipeline with DB access) using the same fixture IDs as locally (`674f1f77bcf86cd799439011` for the default JMeter `knowledgeGroupId`).
 
 
 ## Licence
