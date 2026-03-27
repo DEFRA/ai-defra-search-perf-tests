@@ -145,6 +145,7 @@ services:
       HOST: 0.0.0.0
       PORT: 8085
       AWS_ENDPOINT_URL_BEDROCK_RUNTIME: ${AWS_ENDPOINT_URL_BEDROCK_RUNTIME:-http://bedrock-mock:8080}
+      AI_DEFRA_SEARCH_KNOWLEDGE_API_KEY: "test-api-key"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://ai-defra-search-knowledge:8085/health"]
       interval: 5s
@@ -171,6 +172,8 @@ services:
       MS_ENTRA_CLIENT_SECRET: ${MS_ENTRA_CLIENT_SECRET:-local-dev-tenant-secret}
       MS_ENTRA_REDIRECT_HOST: ${MS_ENTRA_REDIRECT_HOST:-http://ai-defra-search-frontend:3000}
       MS_ENTRA_TENANT_ID: ${MS_ENTRA_TENANT_ID:-local-dev-tenant-id}
+      AI_DEFRA_SEARCH_KNOWLEDGE_API_KEY: "test-api-key"
+      AI_DEFRA_SEARCH_AGENT_API_KEY: "test-api-key"
     depends_on:
       ai-defra-search-agent:
         condition: service_started
@@ -211,6 +214,8 @@ services:
       PORT: ${PORT:-8086}
       AWS_ENDPOINT_URL_BEDROCK_RUNTIME: ${AWS_ENDPOINT_URL_BEDROCK_RUNTIME:-http://bedrock-mock:8080}
       AWS_BEARER_TOKEN_BEDROCK: ${AWS_BEARER_TOKEN_BEDROCK:-}
+      AI_DEFRA_SEARCH_KNOWLEDGE_API_KEY: "test-api-key"
+      AI_DEFRA_SEARCH_AGENT_API_KEY: "test-api-key"
     ports:
       - 8086:8086
     depends_on:
