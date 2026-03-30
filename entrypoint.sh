@@ -47,7 +47,8 @@ jmeter -n -t ${SCENARIOFILE} -e -l "${REPORTFILE}" -o ${JM_REPORTS} -j ${LOGFILE
 -JwaitAfterPageLoad="${WAIT_AFTER_PAGE_LOAD:-5000}" \
 -JwaitAfterQuestion="${WAIT_AFTER_QUESTION:-10000}" \
 -JagentDomain="${AGENT_SERVICE_ENDPOINT:-ai-defra-search-agent.${ENVIRONMENT}.cdp-int.defra.cloud}" \
--JagentPort="${AGENT_SERVICE_PORT:-443}"
+-JagentPort="${AGENT_SERVICE_PORT:-443}" \
+-JagentApiKey="${AI_DEFRA_SEARCH_AGENT_API_KEY}" \
 
 # Publish the results into S3 so they can be displayed in the CDP Portal
 if [ -n "$RESULTS_OUTPUT_S3_PATH" ]; then
