@@ -1,4 +1,3 @@
-
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
@@ -78,21 +77,25 @@
     </TestPlan>
     <hashTree>
       <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults">
+        <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
         <stringProp name="HTTPSampler.domain">${domain}</stringProp>
         <stringProp name="HTTPSampler.port">${port}</stringProp>
         <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
-        <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
         <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
           <collectionProp name="Arguments.arguments"/>
         </elementProp>
         <stringProp name="HTTPSampler.implementation"></stringProp>
       </ConfigTestElement>
       <hashTree/>
-      <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+      <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
         <collectionProp name="HeaderManager.headers">
           <elementProp name="" elementType="Header">
             <stringProp name="Header.name">User-Agent</stringProp>
             <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36</stringProp>
+          </elementProp>
+          <elementProp name="" elementType="Header">
+            <stringProp name="Header.name">X-API-KEY</stringProp>
+            <stringProp name="Header.value">9166e89c3a9c33784ecf804a09976cf26c71de7c14465d5103a3739ad8161de5</stringProp>
           </elementProp>
         </collectionProp>
       </HeaderManager>
@@ -103,7 +106,7 @@
         <boolProp name="CookieManager.controlledByThreadGroup">false</boolProp>
       </CookieManager>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="AI Assistant Users">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="AI Assistant Users" enabled="true">
         <stringProp name="ThreadGroup.num_threads">${__P(threads,4)}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">${__P(rampTime,30)}</stringProp>
         <stringProp name="ThreadGroup.duration">${__P(duration,300)}</stringProp>
@@ -111,19 +114,16 @@
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController">
-          <stringProp name="LoopController.loops">-1</stringProp>
-          <boolProp name="LoopController.continue_forever">true</boolProp>
+          <intProp name="LoopController.loops">-1</intProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
       </ThreadGroup>
       <hashTree>
-
-        <!-- ==================== QUESTION 1 ==================== -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 - Submit Question 1 - What is UCD?" enabled="true">
           <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
           <stringProp name="HTTPSampler.domain">${domain}</stringProp>
           <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
           <stringProp name="HTTPSampler.path">/start</stringProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
@@ -131,7 +131,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{"modelId":"anthropic.claude-3-haiku-20240307-v1:0","question":"What is UCD?","knowledgeGroupId":"${knowledgeGroupId}"}</stringProp>
+                <stringProp name="Argument.value">{&quot;modelId&quot;:&quot;anthropic.claude-3-haiku-20240307-v1:0&quot;,&quot;question&quot;:&quot;What is UCD?&quot;,&quot;knowledgeGroupId&quot;:&quot;${knowledgeGroupId}&quot;}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -164,17 +164,21 @@
             <stringProp name="RegexExtractor.template">$1$</stringProp>
             <stringProp name="RegexExtractor.default">CONVERSATION_ID_NOT_FOUND</stringProp>
             <stringProp name="RegexExtractor.match_number">1</stringProp>
+            <boolProp name="RegexExtractor.default_empty_value">false</boolProp>
           </RegexExtractor>
           <hashTree/>
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Response Body" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="script">
-log.info("=== QUESTION 1 RESPONSE DEBUG ===")
-log.info("Response Code: " + prev.getResponseCode())
-log.info("Response Body (first 5000 chars): " + prev.getResponseDataAsString().take(5000))
-log.info("Extracted conversationId: " + vars.get("conversationId"))
-log.info("=== END DEBUG ===")
+log.info(&quot;=== QUESTION 1 RESPONSE DEBUG ===&quot;)
+log.info(&quot;Response Code: &quot; + prev.getResponseCode())
+log.info(&quot;Response Body (first 5000 chars): &quot; + prev.getResponseDataAsString().take(5000))
+log.info(&quot;Extracted conversationId: &quot; + vars.get(&quot;conversationId&quot;))
+log.info(&quot;=== END DEBUG ===&quot;)
             </stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">false</stringProp>
           </JSR223PostProcessor>
           <hashTree/>
           <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max Response Time" enabled="true">
@@ -182,18 +186,15 @@ log.info("=== END DEBUG ===")
           </DurationAssertion>
           <hashTree/>
         </hashTree>
-
-        <!-- ==================== POLL ANSWER 1 ==================== -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01b - Poll Answer 1 - Get UCD Response" enabled="true">
           <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
           <stringProp name="HTTPSampler.domain">${domain}</stringProp>
           <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
           <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
         </HTTPSamplerProxy>
@@ -214,7 +215,7 @@ log.info("=== END DEBUG ===")
           <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Contains Expected Answer" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="1990813707">really cool thing called User Centred Design</stringProp>
+              <stringProp name="436663163">really cool thing called User Centred Design</stringProp>
             </collectionProp>
             <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
             <intProp name="Assertion.test_type">2</intProp>
@@ -225,11 +226,14 @@ log.info("=== END DEBUG ===")
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Answer 1" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="script">
-log.info("=== ANSWER 1 RESPONSE DEBUG ===")
-log.info("Response Code: " + prev.getResponseCode())
-log.info("Response Body (first 5000 chars): " + prev.getResponseDataAsString().take(5000))
-log.info("=== END DEBUG ===")
+log.info(&quot;=== ANSWER 1 RESPONSE DEBUG ===&quot;)
+log.info(&quot;Response Code: &quot; + prev.getResponseCode())
+log.info(&quot;Response Body (first 5000 chars): &quot; + prev.getResponseDataAsString().take(5000))
+log.info(&quot;=== END DEBUG ===&quot;)
             </stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">false</stringProp>
           </JSR223PostProcessor>
           <hashTree/>
           <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max Response Time" enabled="true">
@@ -237,18 +241,16 @@ log.info("=== END DEBUG ===")
           </DurationAssertion>
           <hashTree/>
         </hashTree>
-
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01c - Agent GET conversation (RAG check)" enabled="true">
           <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
           <stringProp name="HTTPSampler.domain">${agentDomain}</stringProp>
           <stringProp name="HTTPSampler.port">${agentPort}</stringProp>
           <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
           <stringProp name="HTTPSampler.path">/conversations/${conversationId}</stringProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
         </HTTPSamplerProxy>
@@ -289,14 +291,11 @@ if (last.ragError) {
           </DurationAssertion>
           <hashTree/>
         </hashTree>
-
-        <!-- ==================== QUESTION 2 ==================== -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Submit Question 2 - Is it good practice?" enabled="true">
           <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
           <stringProp name="HTTPSampler.domain">${domain}</stringProp>
           <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
           <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
@@ -304,7 +303,7 @@ if (last.ragError) {
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{"modelId":"anthropic.claude-3-haiku-20240307-v1:0","question":"Is it good practice to adopt in software development?","knowledgeGroupId":"${knowledgeGroupId}"}</stringProp>
+                <stringProp name="Argument.value">{&quot;modelId&quot;:&quot;anthropic.claude-3-haiku-20240307-v1:0&quot;,&quot;question&quot;:&quot;Is it good practice to adopt in software development?&quot;,&quot;knowledgeGroupId&quot;:&quot;${knowledgeGroupId}&quot;}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -337,12 +336,15 @@ if (last.ragError) {
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Response Body" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="script">
-log.info("=== QUESTION 2 RESPONSE DEBUG ===")
-log.info("Response Code: " + prev.getResponseCode())
-log.info("Response Body (first 5000 chars): " + prev.getResponseDataAsString().take(5000))
-log.info("conversationId: " + vars.get("conversationId"))
-log.info("=== END DEBUG ===")
+log.info(&quot;=== QUESTION 2 RESPONSE DEBUG ===&quot;)
+log.info(&quot;Response Code: &quot; + prev.getResponseCode())
+log.info(&quot;Response Body (first 5000 chars): &quot; + prev.getResponseDataAsString().take(5000))
+log.info(&quot;conversationId: &quot; + vars.get(&quot;conversationId&quot;))
+log.info(&quot;=== END DEBUG ===&quot;)
             </stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">false</stringProp>
           </JSR223PostProcessor>
           <hashTree/>
           <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max Response Time" enabled="true">
@@ -350,18 +352,15 @@ log.info("=== END DEBUG ===")
           </DurationAssertion>
           <hashTree/>
         </hashTree>
-
-        <!-- ==================== POLL ANSWER 2 ==================== -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02b - Poll Answer 2 - Get Good Practice Response" enabled="true">
           <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
           <stringProp name="HTTPSampler.domain">${domain}</stringProp>
           <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
           <stringProp name="HTTPSampler.path">/start/${conversationId}</stringProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
         </HTTPSamplerProxy>
@@ -382,7 +381,7 @@ log.info("=== END DEBUG ===")
           <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Contains Expected Answer" enabled="true">
             <collectionProp name="Asserion.test_strings">
-              <stringProp name="-596188330">produce much better software geared towards users needs</stringProp>
+              <stringProp name="-234002901">produce much better software geared towards users needs</stringProp>
             </collectionProp>
             <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
             <intProp name="Assertion.test_type">2</intProp>
@@ -393,11 +392,14 @@ log.info("=== END DEBUG ===")
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Answer 2" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="script">
-log.info("=== ANSWER 2 RESPONSE DEBUG ===")
-log.info("Response Code: " + prev.getResponseCode())
-log.info("Response Body (first 5000 chars): " + prev.getResponseDataAsString().take(5000))
-log.info("=== END DEBUG ===")
+log.info(&quot;=== ANSWER 2 RESPONSE DEBUG ===&quot;)
+log.info(&quot;Response Code: &quot; + prev.getResponseCode())
+log.info(&quot;Response Body (first 5000 chars): &quot; + prev.getResponseDataAsString().take(5000))
+log.info(&quot;=== END DEBUG ===&quot;)
             </stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">false</stringProp>
           </JSR223PostProcessor>
           <hashTree/>
           <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Max Response Time" enabled="true">
@@ -405,18 +407,16 @@ log.info("=== END DEBUG ===")
           </DurationAssertion>
           <hashTree/>
         </hashTree>
-
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02c - Agent GET conversation (RAG check)" enabled="true">
           <stringProp name="HTTPSampler.response_timeout">${httpTimeout}</stringProp>
           <stringProp name="HTTPSampler.domain">${agentDomain}</stringProp>
           <stringProp name="HTTPSampler.port">${agentPort}</stringProp>
           <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
           <stringProp name="HTTPSampler.path">/conversations/${conversationId}</stringProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
         </HTTPSamplerProxy>
@@ -457,7 +457,6 @@ if (last.ragError) {
           </DurationAssertion>
           <hashTree/>
         </hashTree>
-
       </hashTree>
       <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
@@ -494,7 +493,6 @@ if (last.ragError) {
           </value>
         </objProp>
         <stringProp name="filename">${__time(yyyyMMdd-HHmmss)}-ai-assistant-report.csv</stringProp>
-        <boolProp name="ResultCollector.success_only_logging">false</boolProp>
       </ResultCollector>
       <hashTree/>
     </hashTree>
