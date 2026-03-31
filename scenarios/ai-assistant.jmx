@@ -98,10 +98,6 @@
             <stringProp name="Header.name">User-Agent</stringProp>
             <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36</stringProp>
           </elementProp>
-          <elementProp name="" elementType="Header">
-            <stringProp name="Header.name">X-API-KEY</stringProp>
-            <stringProp name="Header.value">9166e89c3a9c33784ecf804a09976cf26c71de7c14465d5103a3739ad8161de5}</stringProp>
-          </elementProp>
         </collectionProp>
       </HeaderManager>
       <hashTree/>
@@ -175,11 +171,11 @@
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Response Body" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="script">
-log.info(&quot;=== QUESTION 1 RESPONSE DEBUG ===&quot;)
-log.info(&quot;Response Code: &quot; + prev.getResponseCode())
-log.info(&quot;Response Body (first 5000 chars): &quot; + prev.getResponseDataAsString().take(5000))
-log.info(&quot;Extracted conversationId: &quot; + vars.get(&quot;conversationId&quot;))
-log.info(&quot;=== END DEBUG ===&quot;)
+              log.info(&quot;=== QUESTION 1 RESPONSE DEBUG ===&quot;)
+              log.info(&quot;Response Code: &quot; + prev.getResponseCode())
+              log.info(&quot;Response Body (first 5000 chars): &quot; + prev.getResponseDataAsString().take(5000))
+              log.info(&quot;Extracted conversationId: &quot; + vars.get(&quot;conversationId&quot;))
+              log.info(&quot;=== END DEBUG ===&quot;)
             </stringProp>
             <stringProp name="parameters"></stringProp>
             <stringProp name="filename"></stringProp>
@@ -231,10 +227,10 @@ log.info(&quot;=== END DEBUG ===&quot;)
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Answer 1" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="script">
-log.info(&quot;=== ANSWER 1 RESPONSE DEBUG ===&quot;)
-log.info(&quot;Response Code: &quot; + prev.getResponseCode())
-log.info(&quot;Response Body (first 5000 chars): &quot; + prev.getResponseDataAsString().take(5000))
-log.info(&quot;=== END DEBUG ===&quot;)
+              log.info(&quot;=== ANSWER 1 RESPONSE DEBUG ===&quot;)
+              log.info(&quot;Response Code: &quot; + prev.getResponseCode())
+              log.info(&quot;Response Body (first 5000 chars): &quot; + prev.getResponseDataAsString().take(5000))
+              log.info(&quot;=== END DEBUG ===&quot;)
             </stringProp>
             <stringProp name="parameters"></stringProp>
             <stringProp name="filename"></stringProp>
@@ -260,6 +256,15 @@ log.info(&quot;=== END DEBUG ===&quot;)
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Agent API Key Header" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-API-KEY</stringProp>
+                <stringProp name="Header.value">${agentApiKey}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Agent conversation 200 OK" enabled="true">
             <collectionProp name="Asserion.test_strings">
               <stringProp name="49586">200</stringProp>
@@ -275,19 +280,19 @@ log.info(&quot;=== END DEBUG ===&quot;)
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
             <stringProp name="script">import groovy.json.JsonSlurper
-def json = new JsonSlurper().parseText(prev.getResponseDataAsString())
-def assistants = json.messages.findAll { it.role == &apos;assistant&apos; }
-if (assistants.isEmpty()) {
-    AssertionResult.setFailure(true)
-    AssertionResult.setFailureMessage(&apos;No assistant message in conversation&apos;)
-    return
-}
-def last = assistants[-1]
-if (last.ragError) {
-    AssertionResult.setFailure(true)
-    AssertionResult.setFailureMessage(&apos;ragError on latest assistant message: &apos; + last.ragError)
-}
-</stringProp>
+              def json = new JsonSlurper().parseText(prev.getResponseDataAsString())
+              def assistants = json.messages.findAll { it.role == &apos;assistant&apos; }
+              if (assistants.isEmpty()) {
+              AssertionResult.setFailure(true)
+              AssertionResult.setFailureMessage(&apos;No assistant message in conversation&apos;)
+              return
+              }
+              def last = assistants[-1]
+              if (last.ragError) {
+              AssertionResult.setFailure(true)
+              AssertionResult.setFailureMessage(&apos;ragError on latest assistant message: &apos; + last.ragError)
+              }
+            </stringProp>
             <stringProp name="scriptLanguage">groovy</stringProp>
           </JSR223Assertion>
           <hashTree/>
@@ -341,11 +346,11 @@ if (last.ragError) {
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Response Body" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="script">
-log.info(&quot;=== QUESTION 2 RESPONSE DEBUG ===&quot;)
-log.info(&quot;Response Code: &quot; + prev.getResponseCode())
-log.info(&quot;Response Body (first 5000 chars): &quot; + prev.getResponseDataAsString().take(5000))
-log.info(&quot;conversationId: &quot; + vars.get(&quot;conversationId&quot;))
-log.info(&quot;=== END DEBUG ===&quot;)
+              log.info(&quot;=== QUESTION 2 RESPONSE DEBUG ===&quot;)
+              log.info(&quot;Response Code: &quot; + prev.getResponseCode())
+              log.info(&quot;Response Body (first 5000 chars): &quot; + prev.getResponseDataAsString().take(5000))
+              log.info(&quot;conversationId: &quot; + vars.get(&quot;conversationId&quot;))
+              log.info(&quot;=== END DEBUG ===&quot;)
             </stringProp>
             <stringProp name="parameters"></stringProp>
             <stringProp name="filename"></stringProp>
@@ -397,10 +402,10 @@ log.info(&quot;=== END DEBUG ===&quot;)
           <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Debug - Log Answer 2" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="script">
-log.info(&quot;=== ANSWER 2 RESPONSE DEBUG ===&quot;)
-log.info(&quot;Response Code: &quot; + prev.getResponseCode())
-log.info(&quot;Response Body (first 5000 chars): &quot; + prev.getResponseDataAsString().take(5000))
-log.info(&quot;=== END DEBUG ===&quot;)
+              log.info(&quot;=== ANSWER 2 RESPONSE DEBUG ===&quot;)
+              log.info(&quot;Response Code: &quot; + prev.getResponseCode())
+              log.info(&quot;Response Body (first 5000 chars): &quot; + prev.getResponseDataAsString().take(5000))
+              log.info(&quot;=== END DEBUG ===&quot;)
             </stringProp>
             <stringProp name="parameters"></stringProp>
             <stringProp name="filename"></stringProp>
@@ -426,6 +431,15 @@ log.info(&quot;=== END DEBUG ===&quot;)
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Agent API Key Header" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-API-KEY</stringProp>
+                <stringProp name="Header.value">${agentApiKey}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Agent conversation 200 OK" enabled="true">
             <collectionProp name="Asserion.test_strings">
               <stringProp name="49586">200</stringProp>
@@ -441,19 +455,19 @@ log.info(&quot;=== END DEBUG ===&quot;)
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
             <stringProp name="script">import groovy.json.JsonSlurper
-def json = new JsonSlurper().parseText(prev.getResponseDataAsString())
-def assistants = json.messages.findAll { it.role == &apos;assistant&apos; }
-if (assistants.isEmpty()) {
-    AssertionResult.setFailure(true)
-    AssertionResult.setFailureMessage(&apos;No assistant message in conversation&apos;)
-    return
-}
-def last = assistants[-1]
-if (last.ragError) {
-    AssertionResult.setFailure(true)
-    AssertionResult.setFailureMessage(&apos;ragError on latest assistant message: &apos; + last.ragError)
-}
-</stringProp>
+              def json = new JsonSlurper().parseText(prev.getResponseDataAsString())
+              def assistants = json.messages.findAll { it.role == &apos;assistant&apos; }
+              if (assistants.isEmpty()) {
+              AssertionResult.setFailure(true)
+              AssertionResult.setFailureMessage(&apos;No assistant message in conversation&apos;)
+              return
+              }
+              def last = assistants[-1]
+              if (last.ragError) {
+              AssertionResult.setFailure(true)
+              AssertionResult.setFailureMessage(&apos;ragError on latest assistant message: &apos; + last.ragError)
+              }
+            </stringProp>
             <stringProp name="scriptLanguage">groovy</stringProp>
           </JSR223Assertion>
           <hashTree/>
