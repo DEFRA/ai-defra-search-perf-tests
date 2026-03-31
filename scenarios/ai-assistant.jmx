@@ -95,7 +95,7 @@
           </elementProp>
           <elementProp name="" elementType="Header">
             <stringProp name="Header.name">AI_DEFRA_SEARCH_AGENT_API_KEY</stringProp>
-            <stringProp name="Header.value"></stringProp>
+            <stringProp name="Header.value">${agentApiKey}</stringProp>
           </elementProp>
         </collectionProp>
       </HeaderManager>
