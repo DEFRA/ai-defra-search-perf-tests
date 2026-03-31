@@ -70,6 +70,11 @@
             <stringProp name="Argument.value">${__P(agentPort,8086)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="agentApiKey" elementType="Argument">
+            <stringProp name="Argument.name">agentApiKey</stringProp>
+            <stringProp name="Argument.value">${__P(agentApiKey,)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </elementProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
