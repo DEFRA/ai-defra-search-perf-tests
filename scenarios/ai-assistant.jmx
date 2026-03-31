@@ -100,7 +100,7 @@
           </elementProp>
           <elementProp name="" elementType="Header">
             <stringProp name="Header.name">X-API-KEY</stringProp>
-            <stringProp name="Header.value">${agentApiKey}</stringProp>
+            <stringProp name="Header.value">9166e89c3a9c33784ecf804a09976cf26c71de7c14465d5103a3739ad8161de5}</stringProp>
           </elementProp>
         </collectionProp>
       </HeaderManager>
