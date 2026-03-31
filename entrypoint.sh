@@ -39,7 +39,7 @@ jmeter -n -t ${SCENARIOFILE} -e -l "${REPORTFILE}" -o ${JM_REPORTS} -j ${LOGFILE
 -Jdomain="${SERVICE_ENDPOINT}" \
 -Jport="${SERVICE_PORT}" \
 -Jprotocol="${SERVICE_URL_SCHEME}" \
--Jthreads="${THREADS:-21}" \
+-Jthreads="${THREADS:-23}" \
 -JrampTime="${RAMP_TIME:-120}" \
 -Jduration="${DURATION:-600}" \
 -JhttpTimeout="${HTTP_TIMEOUT:-30000}" \
