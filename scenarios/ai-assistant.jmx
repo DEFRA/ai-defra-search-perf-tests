@@ -99,7 +99,7 @@
             <stringProp name="Header.value">Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36</stringProp>
           </elementProp>
           <elementProp name="" elementType="Header">
-            <stringProp name="Header.name">AI_DEFRA_SEARCH_AGENT_API_KEY</stringProp>
+            <stringProp name="Header.name">X-API-KEY</stringProp>
             <stringProp name="Header.value">${agentApiKey}</stringProp>
           </elementProp>
         </collectionProp>
