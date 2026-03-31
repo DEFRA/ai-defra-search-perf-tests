@@ -41,7 +41,7 @@ jmeter -n -t ${SCENARIOFILE} -e -l "${REPORTFILE}" -o ${JM_REPORTS} -j ${LOGFILE
 -Jprotocol="${SERVICE_URL_SCHEME}" \
 -Jthreads="${THREADS:-20}" \
 -JrampTime="${RAMP_TIME:-120}" \
--Jduration="${DURATION:-320}" \
+-Jduration="${DURATION:-600}" \
 -JhttpTimeout="${HTTP_TIMEOUT:-30000}" \
 -JmaxResponseTime="${MAX_RESPONSE_TIME:-20000}" \
 -JwaitAfterPageLoad="${WAIT_AFTER_PAGE_LOAD:-5000}" \
