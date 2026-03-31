@@ -39,9 +39,9 @@ jmeter -n -t ${SCENARIOFILE} -e -l "${REPORTFILE}" -o ${JM_REPORTS} -j ${LOGFILE
 -Jdomain="${SERVICE_ENDPOINT}" \
 -Jport="${SERVICE_PORT}" \
 -Jprotocol="${SERVICE_URL_SCHEME}" \
--Jthreads="${THREADS:-50}" \
--JrampTime="${RAMP_TIME:-10}" \
--Jduration="${DURATION:-120}" \
+-Jthreads="${THREADS:-30}" \
+-JrampTime="${RAMP_TIME:-20}" \
+-Jduration="${DURATION:-180}" \
 -JhttpTimeout="${HTTP_TIMEOUT:-30000}" \
 -JmaxResponseTime="${MAX_RESPONSE_TIME:-20000}" \
 -JwaitAfterPageLoad="${WAIT_AFTER_PAGE_LOAD:-5000}" \
